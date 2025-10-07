@@ -1,0 +1,35 @@
+# Ignorer les fichiers de contrôle de version Git
+.git
+.gitignore
+.github
+
+# Ignorer les fichiers de configuration et les secrets locaux
+.env
+internal_api_key.txt
+
+# Ignorer l'environnement virtuel Python
+venv
+voitautoenv
+.venv
+
+# Ignorer les fichiers de cache Python et les artefacts de build
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+
+# Ignorer les dossiers de modèles et de tests
+models/
+test_images/
+
+# Ignorer les fichiers de configuration des IDE
+.idea
+.vscode
+
+# Ignorer les fichiers spécifiques à l'OS
+.DS_Store
+Thumbs.db
+
+# Ignorer les fichiers de test et de performance
+test_performance.py
+locustfile.py

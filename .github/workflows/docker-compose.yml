@@ -1,0 +1,74 @@
+volumes:
+  loki_data: {}
+  grafana_data: {}
+
+secrets:
+  internal_api_key:
+    file: ./internal_api_key.txt
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: segmentation_api
+    volumes:
+      - ./models:/home/appuser/app/models
+    ports:
+      - "8000:8000"
+    environment:
+      # --- CONFIGURATION DU MODÈLE ---
+      - MODEL_URL=https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v.0.0.1/best_model_final.keras
+      - CLASS_MAPPING_URL=https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v.0.0.1/class_mapping.json
+    secrets:
+      - internal_api_key
+    healthcheck:
+      # Commande pour vérifier la santé. curl -f échoue si le code HTTP est une erreur (>=400)
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s # Vérifier toutes les 30 secondes
+      timeout: 10s # Attendre 10 secondes pour une réponse
+      retries: 3 # 3 tentatives échouées avant de marquer comme "unhealthy"
+      # Période de grâce au démarrage pour que le modèle ait le temps de charger
+      start_period: 120s
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000
+
+  frontend:
+    build:
+      context: .
+      dockerfile: app.Dockerfile
+    container_name: segmentation_frontend
+    ports:
+      - "8501:8501"
+    environment:
+      # L'URL que le frontend utilisera pour contacter l'API à l'intérieur du réseau Docker
+      - API_URL=http://api:8000/segment/
+    depends_on:
+      api:
+        condition: service_healthy
+
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: promtail
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./promtail-config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana-datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
