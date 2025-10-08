@@ -21,7 +21,7 @@ FROM python:3.12-slim as final
 
 # Installer les dépendances système minimales (curl pour le healthcheck)
 # et nettoyer en une seule commande RUN pour réduire les couches
-RUN apt-get update && apt-get install -y --no-install-recommends curl libopencv-core4.6 libopencv-imgproc4.6 libopencv-imgcodecs4.6 && \
+RUN apt-get update && apt-get install -y --no-install-recommends curl libopencv-core406 libopencv-imgproc406 libopencv-imgcodecs406 && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Créer un utilisateur non-root pour des raisons de sécurité
