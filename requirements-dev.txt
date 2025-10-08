@@ -1,3 +1,4 @@
 pytest
+httpx
 requests-mock
 pytest-cov # Pour mesurer la couverture de code

@@ -31,29 +31,37 @@ jobs:
           pytest
 
   build:
-    name: Construire les images Docker
+    name: Construire et Pousser les images Docker
     needs: test # Ce job ne se lancera que si le job 'test' réussit
+    # Condition : ne s'exécute que pour les push sur la branche 'main'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
       - name: 1. Cloner le dépôt
         uses: actions/checkout@v4
 
-      - name: 2. Mettre en place Docker Buildx
+      - name: 2. Se connecter à Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 3. Mettre en place Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: 3. Construire l'image de l'API
+      - name: 4. Construire et pousser l'image de l'API
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
-          push: false # Ne pas pousser l'image vers un registre pour l'instant
-          tags: voiture-autonome-api:latest
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/voiture-autonome-api:latest
 
-      - name: 4. Construire l'image du Frontend
+      - name: 5. Construire et pousser l'image du Frontend
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./app.Dockerfile
-          push: false
-          tags: voiture-autonome-frontend:latest
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/voiture-autonome-frontend:latest
