@@ -3,14 +3,19 @@ from fastapi.testclient import TestClient
 import os
 from PIL import Image
 import io
-import numpy as np
-import cv2
 
 # Ajouter le répertoire racine au path pour que les imports fonctionnent
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from api.main import app
+# Importer l'application et les dépendances à mocker
+from api.main import app, get_internal_api_key
+
+
+# Définir une fonction de substitution pour la clé API
+def get_mock_api_key():
+    return "test-key"
+
 
 client = TestClient(app)
 
