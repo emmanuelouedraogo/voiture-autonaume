@@ -4,7 +4,6 @@ Ce projet fournit une solution complète et conteneurisée pour déployer un mod
 
 1. **Une API RESTful** (service `api`) construite avec **FastAPI** qui prend une image en entrée et retourne son masque de segmentation.
 2. **Une interface utilisateur web** (service `frontend`) construite avec **Streamlit** qui permet d'interagir facilement avec l'API.
-3. **Une stack de monitoring** (services `loki`, `promtail`, `grafana`) pour la collecte et la visualisation des logs.
 
 Le projet est structuré pour être facilement personnalisable et déployable avec Docker.
 
@@ -14,7 +13,6 @@ Le projet est structuré pour être facilement personnalisable et déployable av
 - **Interface Intuitive** : Permet d'uploader une image et de visualiser l'original et le masque de segmentation côte à côte.
 - **Modulaire** : La logique de segmentation est isolée, ce qui permet de la remplacer facilement par votre propre modèle.
 - **Prêt pour le Déploiement** : Inclut un `Dockerfile` pour conteneuriser l'API et la déployer sur n'importe quel service cloud.
-- **Monitoring Intégré** : Collecte des logs centralisée avec Loki et visualisation avec Grafana.
 
 ## 📂 Structure du Projet
 
@@ -39,10 +37,12 @@ C'est la méthode recommandée pour lancer l'ensemble du projet.
 
 ### Prérequis
 
-- Docker
-- Docker Compose
+- [Docker](https://www.docker.com/get-started)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
-### Lancement de l'Application
+### Lancement pour le développement (avec monitoring)
+
+Cette commande lance tous les services, y compris l'API, le frontend et la stack de monitoring (Grafana, Loki). C'est idéal pour le développement et le débogage.
 
 ```bash
 # Construit les images et lance tous les conteneurs en arrière-plan

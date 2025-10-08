@@ -1,0 +1,33 @@
+version: "3.8"
+
+secrets:
+  internal_api_key:
+    file: ./internal_api_key.txt
+
+services:
+  api:
+    # Utilise l'image pré-construite depuis Docker Hub au lieu de la construire localement
+    image: emmanuelouedraogo/voiture-autonome-api:latest
+    container_name: segmentation_api
+    ports:
+      - "8000:8000"
+    secrets:
+      - internal_api_key
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+  frontend:
+    # Utilise l'image pré-construite depuis Docker Hub
+    image: emmanuelouedraogo/voiture-autonome-frontend:latest
+    container_name: segmentation_frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://api:8000/segment/
+    depends_on:
+      api:
+        condition: service_healthy
