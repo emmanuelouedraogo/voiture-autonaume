@@ -126,3 +126,27 @@ Pour utiliser votre propre modèle de segmentation, il suffit de modifier les va
 
 4. Relancez l'application avec `docker-compose up --build`.
 4. Relancez l'application avec `docker-compose up --build`. Les fichiers seront automatiquement téléchargés au premier démarrage.
+
+## 🌐 Déploiement
+
+Ce projet est configuré pour un déploiement continu sur **Hugging Face Spaces**, une plateforme gratuite et bien adaptée aux applications de Machine Learning.
+
+### Prérequis
+
+- Un compte Docker Hub où les images sont poussées par le workflow CI.
+- Un compte Hugging Face.
+
+### Étapes de déploiement sur Hugging Face
+
+1. **Créez un nouveau "Space"** sur Hugging Face.
+2. Choisissez **"Docker"** comme SDK et "Public" comme visibilité.
+3. Une fois le Space créé, allez dans l'onglet **"Settings"**.
+4. Dans la section "Docker template", cochez **"Use a Docker image from the Hub"**.
+5. Entrez le nom de l'image de l'API : `emmanuelouedraogo/voiture-autonome-api:latest`.
+6. Assurez-vous que le "Application port" est bien `8000`.
+7. Ajoutez les secrets nécessaires (ex: `INTERNAL_API_KEY`) dans la section "Repository secrets".
+8. Sauvegardez les changements.
+
+Hugging Face déploiera automatiquement votre conteneur. L'URL publique de votre API sera disponible sur la page principale de votre Space.
+
+> **Note** : Le frontend Streamlit peut également être déployé de la même manière en créant un second Space et en utilisant l'image `emmanuelouedraogo/voiture-autonome-frontend:latest`. N'oubliez pas de configurer la variable d'environnement `API_URL` dans les secrets du Space frontend pour qu'elle pointe vers l'URL de votre API déployée.
