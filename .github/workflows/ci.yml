@@ -99,9 +99,22 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Se connecter au Hub (en utilisant la nouvelle commande recommandée)
-          hf auth login --token $HF_TOKEN --add-to-git-credential
+          # On n'a plus besoin de --add-to-git-credential car on va modifier l'URL du remote
+          hf auth login --token $HF_TOKEN
           git add .
           # On ne commit que s'il y a des changements
+          if ! git diff --staged --quiet; then
+            git commit -m "Deploy: Mise à jour automatique depuis GitHub Actions"
+            git push
+          else
+            echo "Aucun changement à déployer."
+          fi
+        run: |
+          cd hf-space
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://user:${HF_TOKEN}@huggingface.co/spaces/emmanuelohug/api-voiture-autonome"
+          git add .
           if ! git diff --staged --quiet; then
             git commit -m "Deploy: Mise à jour automatique depuis GitHub Actions"
             git push
