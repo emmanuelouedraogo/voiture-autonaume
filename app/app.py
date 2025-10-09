@@ -49,9 +49,20 @@ if uploaded_file is not None:
                 }
 
                 # Envoyer la requête POST à l'API FastAPI
+                # allow_redirects=False est crucial pour les déploiements sur des plateformes
+                # comme Hugging Face qui peuvent utiliser des redirections internes.
+                # Cela empêche la bibliothèque `requests` de changer la méthode POST en GET.
                 response = requests.post(
-                    API_URL, files=files, timeout=180
+                    API_URL, files=files, timeout=180, allow_redirects=False
                 )  # Timeout augmenté à 3 minutes
+
+                # Gérer manuellement la redirection si nécessaire, en préservant la méthode POST
+                if response.status_code in (301, 302, 307, 308):
+                    redirect_url = response.headers["Location"]
+                    st.info(f"Redirection vers : {redirect_url}")
+                    response = requests.post(
+                        redirect_url, files=files, timeout=180, allow_redirects=False
+                    )
 
                 # Lève une exception pour les codes d'erreur HTTP (4xx ou 5xx)
                 response.raise_for_status()
