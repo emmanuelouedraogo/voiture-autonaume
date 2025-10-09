@@ -68,18 +68,39 @@ jobs:
 
   deploy-to-hf:
     name: Déployer l'API sur Hugging Face Spaces
-    needs: build # S'assure que ce job ne se lance qu'après le succès du build
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
       - name: 1. Cloner le dépôt
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Requis pour l'action push-to-hub
 
-      - name: 2. Pousser vers le Hub Hugging Face
-        uses: huggingface/hub-action@v0
-        with:
-          repo_id: emmanuelohug/api-voiture-autonome
-          repo_type: space
-          token: ${{ secrets.HF_TOKEN }}
+      - name: 2. Installer les dépendances de déploiement
+        run: |
+          sudo apt-get update && sudo apt-get install -y git-lfs
+          pip install huggingface_hub
+
+      - name: 3. Cloner le dépôt du Space Hugging Face
+        run: |
+          git clone https://huggingface.co/spaces/emmanuelohug/api-voiture-autonome hf-space
+
+      - name: 4. Copier les fichiers du projet dans le clone du Space
+        run: |
+          # On copie tout sauf le dossier .git et le dossier du workflow
+          rsync -av --progress . hf-space/ --exclude .git --exclude .github
+
+      - name: 5. Pousser les changements vers le Hub Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          cd hf-space
+          git lfs install
+          huggingface-cli login --token $HF_TOKEN
+          git add .
+          # On ne commit que s'il y a des changements
+          if ! git diff --staged --quiet; then
+            git commit -m "Deploy: Mise à jour automatique depuis GitHub Actions"
+            git push
+          else
+            echo "Aucun changement à déployer."
+          fi
