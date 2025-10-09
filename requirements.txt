@@ -6,3 +6,4 @@ numpy
 opencv-python-headless
 tensorflow>=2.16 # TensorFlow 2.16+ est requis pour Python 3.12
 tqdm
+streamlit

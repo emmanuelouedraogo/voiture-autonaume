@@ -65,3 +65,21 @@ jobs:
           file: ./app.Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/voiture-autonome-frontend:latest
+
+  deploy-to-hf:
+    name: Déployer l'API sur Hugging Face Spaces
+    needs: build # S'assure que ce job ne se lance qu'après le succès du build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Cloner le dépôt
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Requis pour l'action push-to-hub
+
+      - name: 2. Pousser vers le Hub Hugging Face
+        uses: huggingface/hub-action@v1
+        with:
+          repo_id: ${{ secrets.DOCKERHUB_USERNAME }}/voiture-autonome-api # Remplacez par votre ID de Space
+          repo_type: space
+          token: ${{ secrets.HF_TOKEN }}
