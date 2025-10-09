@@ -34,9 +34,12 @@ COPY --from=builder /install /usr/local
 WORKDIR /home/appuser/app
 COPY --chown=appuser:appuser ./api ./api
 
-# Créer le répertoire des modèles et s'assurer que l'utilisateur 'appuser' en est le propriétaire.
-# Cela résout l'erreur de permission au démarrage de l'application.
+# Créer le répertoire des modèles, télécharger les modèles pendant la construction de l'image,
+# puis s'assurer que l'utilisateur 'appuser' est propriétaire de l'ensemble du répertoire.
+# Cela optimise considérablement le temps de démarrage de l'application.
 RUN mkdir -p /home/appuser/app/models && \
+    curl -L "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v.0.0.1/best_model_final.keras" -o "/home/appuser/app/models/best_model_final.keras" && \
+    curl -L "https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v.0.0.1/class_mapping.json" -o "/home/appuser/app/models/class_mapping.json" && \
     chown -R appuser:appuser /home/appuser/app
 
 # Définir l'utilisateur non-root

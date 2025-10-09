@@ -44,7 +44,7 @@ def download_file(url: str, destination: str):
 
 
 # --- 0. Définition des chemins de manière dynamique ---
-# Les URLs sont lues depuis les variables d'environnement.
+# Les URLs sont lues depuis les variables d'environnement de github.
 MODEL_URL = os.getenv(
     "MODEL_URL",
     "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v.0.0.1/best_model_final.keras",
@@ -54,8 +54,13 @@ CLASS_MAPPING_URL = os.getenv(
     "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v.0.0.1/class_mapping.json",
 )
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODELS_DIR = os.path.join(BASE_DIR, "..", "models")
+# Définir le répertoire des modèles dans le home de l'utilisateur pour éviter les problèmes de permission.
+# os.path.expanduser("~") retourne '/home/appuser' dans le conteneur Docker.
+# C'est un emplacement sûr pour écrire des fichiers.
+HOME_DIR = os.path.expanduser("~")
+MODELS_DIR = os.path.join(HOME_DIR, "models")
+
+print(f"Le répertoire des modèles est configuré sur : {MODELS_DIR}")
 
 
 def load_segmentation_model():
