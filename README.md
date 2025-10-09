@@ -1,3 +1,13 @@
+---
+title: API de Segmentation de Voiture Autonome
+emoji: 🚗
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 8000
+pinned: false
+---
+
 # 🚗 Voiture Autonome - API de Segmentation d'Image
 
 Ce projet fournit une solution complète et conteneurisée pour déployer un modèle de segmentation d'images. Il se compose de plusieurs services orchestrés par Docker Compose :
