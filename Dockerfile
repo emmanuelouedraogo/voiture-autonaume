@@ -34,6 +34,11 @@ COPY --from=builder /install /usr/local
 WORKDIR /home/appuser/app
 COPY --chown=appuser:appuser ./api ./api
 
+# Créer le répertoire des modèles et s'assurer que l'utilisateur 'appuser' en est le propriétaire.
+# Cela résout l'erreur de permission au démarrage de l'application.
+RUN mkdir -p /home/appuser/app/models && \
+    chown -R appuser:appuser /home/appuser/app
+
 # Définir l'utilisateur non-root
 USER appuser
 
