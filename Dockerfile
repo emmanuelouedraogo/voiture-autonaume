@@ -39,7 +39,7 @@ COPY --chown=appuser:appuser ./api ./api
 # Cela optimise considérablement le temps de démarrage de l'application.
 RUN mkdir -p /home/appuser/app/models && \
     curl -L "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v.0.0.1/best_model_final.keras" -o "/home/appuser/app/models/best_model_final.keras" && \
-    curl -L "https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v.0.0.1/class_mapping.json" -o "/home/appuser/app/models/class_mapping.json" && \
+    curl -L "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v.0.0.1/class_mapping.json" -o "/home/appuser/app/models/class_mapping.json" && \
     chown -R appuser:appuser /home/appuser/app
 
 # Définir l'utilisateur non-root
