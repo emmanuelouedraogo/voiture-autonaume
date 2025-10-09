@@ -33,7 +33,7 @@ if uploaded_file is not None:
     with col1:
         st.subheader("Image Originale")
         image = Image.open(uploaded_file)
-        st.image(image, caption="Image envoyée", width="stretch")
+        st.image(image, caption="Image envoyée", use_container_width=True)
 
     with col2:
         st.subheader("Image Segmentée")
@@ -79,7 +79,7 @@ if uploaded_file is not None:
                 st.image(
                     segmented_image,
                     caption="Masque de segmentation",
-                    use_column_width=True,
+                    use_container_width=True,
                 )
 
             except requests.exceptions.ConnectionError:
