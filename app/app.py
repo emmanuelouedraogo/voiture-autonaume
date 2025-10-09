@@ -3,6 +3,7 @@ import requests
 from PIL import Image
 import io
 import os
+from urllib.parse import urljoin
 
 # --- Configuration ---
 # Utilise une variable d'environnement pour l'URL de l'API, avec une valeur par défaut pour le dev local.
@@ -58,10 +59,15 @@ if uploaded_file is not None:
 
                 # Gérer manuellement la redirection si nécessaire, en préservant la méthode POST
                 if response.status_code in (301, 302, 307, 308):
-                    redirect_url = response.headers["Location"]
-                    st.info(f"Redirection vers : {redirect_url}")
+                    # L'en-tête 'Location' peut être une URL relative. On la reconstruit en URL absolue.
+                    redirect_location = response.headers["Location"]
+                    absolute_redirect_url = urljoin(API_URL, redirect_location)
+                    
+                    st.info(f"Redirection détectée, nouvelle requête vers : {absolute_redirect_url}")
+                    
+                    # On refait la requête POST vers l'URL absolue, en gardant les mêmes fichiers et timeout.
                     response = requests.post(
-                        redirect_url, files=files, timeout=180, allow_redirects=False
+                        absolute_redirect_url, files=files, timeout=180, allow_redirects=False
                     )
 
                 # Lève une exception pour les codes d'erreur HTTP (4xx ou 5xx)
