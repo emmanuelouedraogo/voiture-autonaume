@@ -103,6 +103,10 @@ jobs:
           # Modifier l'URL du remote pour y inclure le token d'authentification (méthode la plus robuste)
           git remote set-url origin "https://user:${HF_TOKEN}@huggingface.co/spaces/emmanuelohug/api-voiture-autonome"
           
+          # Configurer Git LFS pour suivre les fichiers volumineux (comme les notebooks)
+          git lfs install
+          git lfs track "*.ipynb"
+          
           git add .
           
           # Créer un commit et le pousser uniquement s'il y a des changements
