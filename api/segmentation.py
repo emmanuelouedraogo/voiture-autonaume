@@ -5,60 +5,14 @@ import os
 import json
 import requests
 from tqdm import tqdm
-
-
-def download_file(url: str, destination: str):
-    """Télécharge un fichier depuis une URL vers une destination, avec une barre de progression."""
-    if os.path.exists(destination):
-        print(
-            f"Le fichier {os.path.basename(destination)} existe déjà. Téléchargement ignoré."
-        )
-        return
-
-    print(f"Téléchargement de {os.path.basename(destination)} depuis {url}...")
-    try:
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
-
-        total_size = int(response.headers.get("content-length", 0))
-        block_size = 1024  # 1 Kio
-
-        with open(destination, "wb") as f, tqdm(
-            desc=os.path.basename(destination),
-            total=total_size,
-            unit="iB",
-            unit_scale=True,
-            unit_divisor=1024,
-        ) as bar:
-            for data in response.iter_content(block_size):
-                bar.update(len(data))
-                f.write(data)
-
-        if total_size != 0 and bar.n != total_size:
-            print("ERREUR: Le téléchargement semble incomplet.")
-        else:
-            print("Téléchargement terminé.")
-
-    except requests.exceptions.RequestException as e:
-        raise RuntimeError(f"Échec du téléchargement de {url}: {e}") from e
+from pathlib import Path
 
 
 # --- 0. Définition des chemins de manière dynamique ---
-# Les URLs sont lues depuis les variables d'environnement de github.
-MODEL_URL = os.getenv(
-    "MODEL_URL",
-    "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v.0.0.1/best_model_final.keras",
-)
-CLASS_MAPPING_URL = os.getenv(
-    "CLASS_MAPPING_URL",
-    "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v.0.0.1/class_mapping.json",
-)
-
-# Définir le répertoire des modèles dans le home de l'utilisateur pour éviter les problèmes de permission.
-# os.path.expanduser("~") retourne '/home/appuser' dans le conteneur Docker.
-# C'est un emplacement sûr pour écrire des fichiers.
-HOME_DIR = os.path.expanduser("~")
-MODELS_DIR = os.path.join(HOME_DIR, "models")
+# Le répertoire des modèles est maintenant relatif au répertoire de l'application.
+# Les modèles sont inclus dans l'image Docker.
+APP_DIR = Path(__file__).parent.parent
+MODELS_DIR = APP_DIR / "models"
 
 print(f"Le répertoire des modèles est configuré sur : {MODELS_DIR}")
 
@@ -73,15 +27,9 @@ def load_segmentation_model():
     img_height, img_width = 256, 512  # Tailles par défaut
 
     try:
-        # S'assurer que le dossier des modèles existe
-        os.makedirs(MODELS_DIR, exist_ok=True)
-
-        # Définir les chemins de destination et télécharger les fichiers si nécessaire
-        model_path = os.path.join(MODELS_DIR, "best_model_final.keras")
-        class_mapping_path = os.path.join(MODELS_DIR, "class_mapping.json")
-        download_file(MODEL_URL, model_path)
-        download_file(CLASS_MAPPING_URL, class_mapping_path)
-        # --- Charger le modèle Keras depuis un fichier unique ---
+        # Les modèles sont supposés exister car ils sont intégrés dans l'image Docker.
+        model_path = MODELS_DIR / "best_model_final.keras"
+        class_mapping_path = MODELS_DIR / "class_mapping.json"
 
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Fichier modèle non trouvé: {model_path}")

@@ -8,8 +8,6 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: segmentation_api
-    volumes:
-      - ./models:/home/appuser/app/models
     ports:
       - "8000:8000"
     environment:
