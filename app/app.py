@@ -52,20 +52,19 @@ if uploaded_file is not None:
                 response = requests.post(
                     API_URL, files=files, timeout=180
                 )  # Timeout augmenté à 3 minutes
-                
+
                 # Lève une exception pour les codes d'erreur HTTP (4xx ou 5xx)
                 response.raise_for_status()
-                
-                # Si la requête réussit (code 200)
-                if response.ok:
-                    # Lire l'image de segmentation retournée par l'API
-                    segmented_image = Image.open(io.BytesIO(response.content))
-                    st.image(
-                        segmented_image,
-                        caption="Masque de segmentation",
-                        width="stretch",
-                    )
-            
+
+                # Si la requête a réussi, response.raise_for_status() ne lève pas d'exception.
+                # On peut donc directement traiter la réponse.
+                segmented_image = Image.open(io.BytesIO(response.content))
+                st.image(
+                    segmented_image,
+                    caption="Masque de segmentation",
+                    use_column_width=True,
+                )
+
             except requests.exceptions.ConnectionError:
                 st.error("Impossible de se connecter à l'API de segmentation.")
                 st.warning(
