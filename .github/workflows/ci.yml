@@ -95,7 +95,11 @@ jobs:
         run: |
           cd hf-space
           git lfs install
-          huggingface-cli login --token $HF_TOKEN
+          # Configurer l'identité Git pour que le commit puisse être créé
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Se connecter au Hub (en utilisant la nouvelle commande recommandée)
+          hf auth login --token $HF_TOKEN
           git add .
           # On ne commit que s'il y a des changements
           if ! git diff --staged --quiet; then
