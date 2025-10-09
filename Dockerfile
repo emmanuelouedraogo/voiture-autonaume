@@ -49,5 +49,4 @@ USER appuser
 EXPOSE 8000
 
 # Commande pour lancer l'API quand le conteneur démarre
-# Le téléchargement du modèle se fera ici, dans le dossier /home/appuser/app/models
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]

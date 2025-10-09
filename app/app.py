@@ -52,8 +52,12 @@ if uploaded_file is not None:
                 response = requests.post(
                     API_URL, files=files, timeout=180
                 )  # Timeout augmenté à 3 minutes
-
-                if response.status_code == 200:
+                
+                # Lève une exception pour les codes d'erreur HTTP (4xx ou 5xx)
+                response.raise_for_status()
+                
+                # Si la requête réussit (code 200)
+                if response.ok:
                     # Lire l'image de segmentation retournée par l'API
                     segmented_image = Image.open(io.BytesIO(response.content))
                     st.image(
@@ -61,10 +65,23 @@ if uploaded_file is not None:
                         caption="Masque de segmentation",
                         width="stretch",
                     )
-                else:
-                    st.error(f"Erreur de l'API (code {response.status_code}):")
-                    st.error(response.json().get("detail", "Aucun détail fourni."))
-
-            except requests.exceptions.RequestException as e:
-                st.error(f"Erreur de connexion à l'API : {e}")
-                st.info("Assurez-vous que l'API FastAPI est bien en cours d'exécution.")
+            
+            except requests.exceptions.ConnectionError:
+                st.error("Impossible de se connecter à l'API de segmentation.")
+                st.warning(
+                    "Veuillez vérifier que le service API est bien démarré et que l'URL configurée est correcte."
+                )
+            except requests.exceptions.Timeout:
+                st.error("La requête vers l'API a expiré (timeout).")
+                st.warning(
+                    "L'API est peut-être surchargée ou le traitement de l'image est trop long."
+                )
+            except requests.exceptions.HTTPError as e:
+                st.error(f"Erreur de l'API (code {e.response.status_code}):")
+                try:
+                    # Essayer de décoder le message d'erreur JSON de l'API
+                    detail = e.response.json().get("detail", e.response.text)
+                    st.error(f"Détail : {detail}")
+                except ValueError:
+                    # Si la réponse n'est pas du JSON, afficher le texte brut
+                    st.error(f"Réponse brute du serveur : {e.response.text}")
