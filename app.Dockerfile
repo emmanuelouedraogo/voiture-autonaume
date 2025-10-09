@@ -25,6 +25,10 @@ COPY --chown=appuser:appuser ./app/app.py .
 # Définir l'utilisateur non-root
 USER appuser
 
+# Définir la variable d'environnement pour l'URL de l'API.
+# Cette valeur sera utilisée si elle n'est pas surchargée par docker-compose ou un autre orchestrateur.
+ENV API_URL="http://api:8000/segment/"
+
 # Exposer le port et définir la commande de démarrage
 EXPOSE 8501
 CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.enableCORS=false", "--server.headless=true"]
