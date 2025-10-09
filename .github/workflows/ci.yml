@@ -78,7 +78,7 @@ jobs:
           fetch-depth: 0 # Requis pour l'action push-to-hub
 
       - name: 2. Pousser vers le Hub Hugging Face
-        uses: huggingface/hub-action@v1
+        uses: huggingface/hub-action@v0.19.0
         with:
           repo_id: ${{ secrets.DOCKERHUB_USERNAME }}/voiture-autonome-api # Remplacez par votre ID de Space
           repo_type: space
