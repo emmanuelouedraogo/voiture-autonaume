@@ -32,3 +32,7 @@ segmentation-cli = "scripts.run_cli:main"
 [project.urls]
 "Homepage" = "https://github.com/emmanuelouedraogo/voiture-autonaume"
 "Bug Tracker" = "https://github.com/emmanuelouedraogo/voiture-autonaume/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["emmanuel_segmentation_package*", "scripts*"]

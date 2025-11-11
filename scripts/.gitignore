@@ -1,0 +1,33 @@
+# Fichiers et dossiers de cache Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Répertoires de cache du modèle et des sorties
+/model_cache/
+/outputs/
+
+# Environnements virtuels
+*env/
+venv/
+.venv/
+env/
+ENV/
+impenv/
+
+# Fichiers de configuration des éditeurs et IDE
+.idea/
+.vscode/
+
+# Fichiers de notebooks Jupyter/Colab
+.ipynb_checkpoints
+
+# Fichiers de build et de distribution Python
+build/
+dist/
+*.egg-info/
+
+# Fichiers de configuration Pip
+pip.conf
+pip.ini
