@@ -1,46 +1,34 @@
-# --- Étape 1: Le "Builder" ---
-# Cette étape installe les dépendances dans un environnement isolé.
-FROM python:3.12-slim as builder
+# Utiliser une image Python slim pour une taille de base réduite
+FROM python:3.9-slim
 
-# Installer les dépendances de construction nécessaires pour certaines bibliothèques Python
-RUN apt-get update && apt-get install -y --no-install-recommends gcc build-essential && \
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Installer les dépendances système minimales (si nécessaire pour certaines bibliothèques comme OpenCV)
+RUN apt-get update && apt-get install -y --no-install-recommends libgl1-mesa-glx libglib2.0-0 && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Définir le répertoire de travail pour les dépendances
-WORKDIR /install
+# Mettre à jour pip
+RUN python -m pip install --upgrade pip
 
-# Copier et installer les dépendances Python
-# Utiliser --prefix au lieu d'un venv pour une meilleure mise en cache et une copie plus simple
-COPY requirements.txt .
-RUN pip install --no-cache-dir --prefix="/install" -r requirements.txt
+# Copier uniquement le fichier de configuration pour profiter de la mise en cache Docker
+COPY pyproject.toml .
 
-
-# --- Étape 2: L'image finale ---
-# Cette étape est optimisée pour la production.
-FROM python:3.12-slim as final
-
-# Installer les dépendances système minimales (curl pour le healthcheck)
-# et nettoyer en une seule commande RUN pour réduire les couches
-RUN apt-get update && apt-get install -y --no-install-recommends curl libopencv-core-dev libopencv-imgproc-dev libopencv-imgcodecs-dev && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Installer les dépendances, y compris Gunicorn pour la production
+# Cette étape sera mise en cache si pyproject.toml ne change pas
+RUN pip install --no-cache-dir . "gunicorn" "python-dotenv"
 
 # Créer un utilisateur non-root pour des raisons de sécurité
 RUN useradd --create-home --shell /bin/bash appuser
 
-# Copier les dépendances installées depuis l'étape "builder"
-COPY --from=builder /install /usr/local
-
 # Copier le code de l'application
-WORKDIR /home/appuser/app
-COPY --chown=appuser:appuser ./api ./api
+COPY . .
 
-# Créer le répertoire des modèles, télécharger les modèles pendant la construction de l'image,
-# puis s'assurer que l'utilisateur 'appuser' est propriétaire de l'ensemble du répertoire.
-# Cela optimise considérablement le temps de démarrage de l'application.
-RUN mkdir -p /home/appuser/app/models && \
-    curl -L "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v.0.0.1/best_model_final.keras" -o "/home/appuser/app/models/best_model_final.keras" && \
-    curl -L "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v.0.0.1/class_mapping.json" -o "/home/appuser/app/models/class_mapping.json" && \
-    chown -R appuser:appuser /home/appuser/app
+# Installer le package en mode éditable pour s'assurer que les chemins sont corrects
+RUN pip install -e .
+
+# Changer le propriétaire du répertoire de l'application
+RUN chown -R appuser:appuser /app
 
 # Définir l'utilisateur non-root
 USER appuser
@@ -48,5 +36,7 @@ USER appuser
 # Exposer le port
 EXPOSE 8000
 
-# Commande pour lancer l'API quand le conteneur démarre
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Commande pour lancer l'API avec Gunicorn quand le conteneur démarre
+# 'api.run_api:app' pointe vers l'objet 'app' de Flask dans votre script.
+# Le nombre de 'workers' peut être ajusté en fonction des cœurs de CPU disponibles.
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "api.run_api:app"]

@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+load_dotenv() # Charge les variables depuis le fichier .env
+
+# Le reste de votre code...
 import os
 import traceback
 from flask import Flask, request, jsonify

@@ -14,9 +14,17 @@ import traceback # Import traceback for printing full error information
 from matplotlib.colors import ListedColormap # Import ListedColormap
 
 # URLs for model, config, and class weights from GitHub releases
-MODEL_URL = "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v.0.0.2/final_optimized_model.keras"
-CONFIG_URL = "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v.0.0.2/class_mapping.json"
-CLASS_WEIGHTS_URL = "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v.0.0.2/class_weights.json"
+# Lit les URLs depuis les variables d'environnement, avec des valeurs par défaut si elles ne sont pas définies.
+# C'est une bonne pratique pour la configuration des conteneurs.
+MODEL_URL = os.getenv(
+    "MODEL_URL", "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.0.2/final_optimized_model.keras"
+)
+CONFIG_URL = os.getenv(
+    "CONFIG_URL", "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.0.2/class_mapping.json"
+)
+CLASS_WEIGHTS_URL = os.getenv(
+    "CLASS_WEIGHTS_URL", "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.0.2/class_weights.json"
+)
 
 # Directory to cache downloaded model files
 MODEL_CACHE_DIR = "model_cache"
@@ -38,9 +46,9 @@ def create_weighted_loss(class_weights):
 def load_segmentation_model(model_path, config_path, class_weights_path):
     """Loads the trained segmentation model and its configuration."""
     if not os.path.exists(model_path):
-        raise FileNotFoundError(f"Model not found at: {{model_path}}")
+        raise FileNotFoundError(f"Model not found at: {model_path}")
     if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Configuration not found at: {{config_path}}")
+        raise FileNotFoundError(f"Configuration not found at: {config_path}")
 
     try:
         with open(config_path, 'r') as f:
@@ -49,37 +57,24 @@ def load_segmentation_model(model_path, config_path, class_weights_path):
         required_keys = ['id_to_group', 'group_names', 'group_colors', 'num_classes']
         for key in required_keys:
             if key not in config:
-                raise KeyError(f"Missing key in config file: '{{key}}'")
+                raise KeyError(f"Missing key in config file: '{key}'")
 
         config['id_to_group'] = np.array(config['id_to_group'], dtype=np.uint8)
 
     except (json.JSONDecodeError, KeyError) as e:
-        print(f"Error loading or validating config file {{config_path}}: {{e}}")
+        print(f"Error loading or validating config file {config_path}: {e}")
         raise
 
     # Load class weights within the script
     try:
-        if os.path.exists(class_weights_path):
-             with open(class_weights_path, 'r') as f:
-                 class_weights_values_in_script = json.load(f)
-             print("Class weights loaded successfully within the script.")
-        else:
-             print(f"Error: Class weights file not found at {{class_weights_path}} within the script.")
-             # Fallback: Use dummy weights if weights file is not found
-             print("Using dummy weights as fallback within the script.")
-             # IMPORTANT: Ensure the dummy weights list has the correct size (num_classes)
-             # This needs to be based on the config loaded above, not a hardcoded value like 8
-             num_classes_in_script = config.get('num_classes', 8) # Get num_classes from config or default to 8
-             class_weights_values_in_script = [1.0] * num_classes_in_script
-             print(f"Dummy weights: {{class_weights_values_in_script}}")
-
+        if not os.path.exists(class_weights_path):
+            raise FileNotFoundError(f"Class weights file not found at: {class_weights_path}")
+        with open(class_weights_path, 'r') as f:
+            class_weights_values_in_script = json.load(f)
+        print("Class weights loaded successfully.")
     except Exception as e:
-        print(f"Error loading class weights within the script: {{e}}")
-        # Fallback: Use dummy weights for any other error
-        # Again, base dummy weights size on num_classes from the loaded config
-        num_classes_in_script = config.get('num_classes', 8) # Get num_classes from config or default to 8
-        class_weights_values_in_script = [1.0] * num_classes_in_script
-        print(f"Using dummy weights as fallback within the script due to error: {{class_weights_values_in_script}}")
+        print(f"Error loading class weights from {class_weights_path}: {e}")
+        raise
 
 
     custom_objects = {'weighted_loss': create_weighted_loss(class_weights_values_in_script)}
@@ -97,7 +92,7 @@ def is_url(input_string):
 
 def download_image(url):
     """Downloads an image from a URL to a temporary file."""
-    print(f"Downloading image from: {{url}}")
+    print(f"Downloading image from: {url}")
     try:
         response = requests.get(url, stream=True)
         response.raise_for_status()
@@ -106,19 +101,19 @@ def download_image(url):
         with open(temp_file.name, 'wb') as f:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
-        print(f"Downloaded image to temporary file: {{temp_file.name}}")
+        print(f"Downloaded image to temporary file: {temp_file.name}")
         return temp_file.name
     except requests.exceptions.RequestException as e:
-        print(f"Error downloading image: {{e}}")
+        print(f"Error downloading image: {e}")
         return None
 
 def download_file_from_url(url, output_path):
     """Downloads a file from a URL if it doesn't exist at the output path."""
     if os.path.exists(output_path):
-        print(f"File already exists, skipping download: {{output_path}}")
+        print(f"File already exists, skipping download: {output_path}")
         return True
 
-    print(f"Downloading file from {{url}} to {{output_path}}...")
+    print(f"Downloading file from {url} to {output_path}...")
     try:
         response = requests.get(url, stream=True)
         response.raise_for_status()
@@ -128,7 +123,7 @@ def download_file_from_url(url, output_path):
         print("Download complete.")
         return True
     except requests.exceptions.RequestException as e:
-        print(f"Error downloading file: {{e}}")
+        print(f"Error downloading file: {e}")
         return False
 
 def preprocess_image(image_path=None, image_array=None, img_size=(224, 224)):
@@ -138,10 +133,10 @@ def preprocess_image(image_path=None, image_array=None, img_size=(224, 224)):
             original_image = Image.open(image_path).convert('RGB')
             image_array = np.array(original_image)
         except FileNotFoundError:
-            print(f"Error: Image not found at {{image_path}}")
+            print(f"Error: Image not found at {image_path}")
             return None, None, None # Return None for all if file not found
         except Exception as e:
-            print(f"Error loading image from {{image_path}}: {{e}}")
+            print(f"Error loading image from {image_path}: {e}")
             return None, None, None # Handle other loading errors
     elif image_array is None:
         raise ValueError("Either image_path or image_array must be provided.")

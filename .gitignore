@@ -14,6 +14,7 @@ venv/
 .venv/
 env/
 ENV/
+.env
 impenv/
 
 # Fichiers de configuration des éditeurs et IDE
@@ -27,3 +28,5 @@ impenv/
 build/
 dist/
 *.egg-info/
+# FICHIER TEXTE
+*.txt

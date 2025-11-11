@@ -17,17 +17,24 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "tensorflow>=2.10",
+    "tensorflow>=2.16",
     "numpy",
     "Pillow",
     "matplotlib",
+    "python-dotenv",
     "pandas",
     "requests",
     "flask"
 ]
 
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov",
+]
+
 [project.scripts]
-segmentation-cli = "scripts.run_cli:main"
+segmentation-cli = "api.run_cli:main"
 
 [project.urls]
 "Homepage" = "https://github.com/emmanuelouedraogo/voiture-autonaume"
@@ -35,4 +42,4 @@ segmentation-cli = "scripts.run_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["emmanuel_segmentation_package*", "scripts*"]
+include = ["emmanuel_segmentation_package*", "api*"]
