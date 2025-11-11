@@ -1,28 +1,22 @@
 ---
-title: API de Segmentation de Voiture Autonome
+title: Emmanuel Segmentation Package
 emoji: 🚗
 colorFrom: blue
 colorTo: green
-sdk: docker
-app_port: 8000
+sdk: python
 pinned: false
 ---
 
-# 🚗 Voiture Autonome - API de Segmentation d'Image
+# 🚗 emmanuel_segmentation_package
 
-Ce projet fournit une solution complète et conteneurisée pour déployer un modèle de segmentation d'images. Il se compose de plusieurs services orchestrés par Docker Compose :
-
-1. **Une API RESTful** (service `api`) construite avec **FastAPI** qui prend une image en entrée et retourne son masque de segmentation.
-2. **Une interface utilisateur web** (service `frontend`) construite avec **Streamlit** qui permet d'interagir facilement avec l'API.
-
-Le projet est structuré pour être facilement personnalisable et déployable avec Docker.
+Ce projet fournit un package Python pour la segmentation sémantique d'images de scènes de conduite, ainsi qu'une API web simple pour servir les prédictions. Le modèle et sa configuration sont téléchargés automatiquement depuis les *releases* GitHub, rendant le projet portable et facile à utiliser.
 
 ## ✨ Fonctionnalités
 
-- **API Performante** : Utilise FastAPI pour des réponses rapides et asynchrones.
-- **Interface Intuitive** : Permet d'uploader une image et de visualiser l'original et le masque de segmentation côte à côte.
-- **Modulaire** : La logique de segmentation est isolée, ce qui permet de la remplacer facilement par votre propre modèle.
-- **Prêt pour le Déploiement** : Inclut un `Dockerfile` pour conteneuriser l'API et la déployer sur n'importe quel service cloud.
+- **Package Python Installable** : La logique de segmentation est encapsulée dans un package (`emmanuel_segmentation_package`) pour une réutilisation facile.
+- **API Web avec Flask** : Une API simple pour obtenir des prédictions via des requêtes HTTP. Elle retourne les statistiques de segmentation et l'image segmentée encodée en Base64.
+- **Interface en Ligne de Commande (CLI)** : Un script pour lancer des prédictions directement depuis le terminal sur une image locale ou une URL.
+- **Téléchargement Automatique** : Le modèle (`.keras`), la configuration et les poids des classes sont téléchargés depuis les *releases* GitHub au premier lancement, évitant d'avoir à stocker de gros fichiers dans le dépôt.
 
 ## 📂 Structure du Projet
 

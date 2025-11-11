@@ -1,58 +1,29 @@
-# Fichiers de cache et compilés Python
+# Fichiers et dossiers de cache Python
 __pycache__/
-*.py[cod]
-.pytest_cache/
+*.pyc
+*.pyo
+*.pyd
 
-# --- Environnements virtuels ---
-.env
-.venv
-env/
+# Répertoires de cache du modèle et des sorties
+/model_cache/
+/outputs/
+
+# Environnements virtuels
+*env/
 venv/
+.venv/
+env/
 ENV/
-voitautoenv/
+impenv/
 
-# --- Fichiers secrets et de configuration locale ---
-*.env
-internal_api_key.txt
-local_settings.py
-
-# --- Dépendances et distribution ---
-wheels/
-dist/
-build/
-eggs/
-*.egg-info/
-
-# --- Fichiers de cache et d'IDE ---
-.ipynb_checkpoints
+# Fichiers de configuration des éditeurs et IDE
 .idea/
 .vscode/
-*.sublime-project
-*.sublime-workspace
-.cache/
-.mypy_cache/
-.tox/
 
-# --- Fichiers spécifiques à l'OS ---
-.DS_Store
-Thumbs.db
+# Fichiers de notebooks Jupyter/Colab
+.ipynb_checkpoints
 
-# --- Modèles de Machine Learning ---
-# Il est recommandé de ne pas versionner les fichiers de modèles volumineux.
-# Ils doivent être téléchargés ou montés séparément.
-models/
-*.h5
-*.pb
-*.pt
-*.pth
-*.keras
-
-# --- Logs et rapports ---
-*.log
-logs/
-htmlcov/
-coverage.xml
-
-# --- Fichiers temporaires ---
-*.swp
-*~
+# Fichiers de build et de distribution Python
+build/
+dist/
+*.egg-info/

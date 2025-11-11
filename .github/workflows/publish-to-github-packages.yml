@@ -1,0 +1,44 @@
+# Nom du workflow
+name: Publish Python Package to GitHub Packages
+
+# Déclencheur : ce workflow s'exécute à chaque fois que vous créez une nouvelle "release" sur GitHub
+on:
+  release:
+    types: [created]
+
+# Permissions nécessaires pour le job
+permissions:
+  contents: read
+  packages: write # Permission d'écrire sur GitHub Packages
+
+# Définition des jobs
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # Utilise la dernière version d'Ubuntu
+
+    steps:
+    # Étape 1: Récupérer le code source de votre dépôt
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Étape 2: Configurer l'environnement Python
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12' # Vous pouvez ajuster la version de Python
+
+    # Étape 3: Installer les dépendances de build
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build
+
+    # Étape 4: Construire le package (crée les fichiers .whl et .tar.gz dans le dossier 'dist/')
+    - name: Build package
+      run: python -m build
+
+    # Étape 5: Publier le package sur GitHub Packages
+    - name: Publish package
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository_url: https://pypi.pkg.github.com/${{ github.repository_owner }}
