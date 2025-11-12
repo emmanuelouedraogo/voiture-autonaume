@@ -1,6 +1,6 @@
 # --- Étape 1: Builder ---
 # Utilise une image Python complète pour construire les dépendances
-FROM python:3.12-slim as builder
+FROM python:3.12-slim AS builder
 
 # Définir le répertoire de travail
 WORKDIR /app
@@ -26,7 +26,7 @@ RUN useradd --create-home --shell /bin/bash appuser
 
 # Installer les dépendances système minimales nécessaires à l'exécution
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
