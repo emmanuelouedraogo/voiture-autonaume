@@ -66,24 +66,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Étape 1: Pousser un fichier README.md pour configurer le Space Hugging Face
-      # Cette action va créer un commit dans le dépôt du Space pour le mettre à jour.
-      - name: Push README to Hugging Face Space
-        uses: huggingface/hub-action@v1
+      # Étape 1: Créer un fichier README.md localement pour la configuration du Space
+      - name: Create Space README
+        run: |
+          echo "---" > README.md
+          echo "title: API de Segmentation de Scène Routière" >> README.md
+          echo "sdk: docker" >> README.md
+          echo "app_port: 5000" >> README.md
+          echo "---" >> README.md
+
+      # Étape 2: Uploader le README.md pour déclencher le redéploiement du Space
+      - name: Push README to Hugging Face Hub
+        uses: huggingface/upload-to-hub@v0.4
         with:
-          # L'identifiant de votre Space
           repo_id: "emmanuelohug/api-voiture-autonome"
           repo_type: "space"
-          # Le jeton d'accès que vous avez ajouté aux secrets
           token: ${{ secrets.HF_TOKEN }}
-          # Le message du commit qui apparaîtra dans l'historique du Space
           commit_message: "Update Space to use latest Docker image"
-          # Le contenu du fichier README.md à créer dans le Space
-          # Ce fichier configure le Space pour qu'il utilise votre image Docker depuis Docker Hub.
-          files: |
-            README.md: |
-              ---
-              title: API de Segmentation de Scène Routière
-              sdk: docker
-              app_port: 5000
-              ---
+          # Spécifie le fichier à uploader et son nom dans le dépôt distant
+          files_to_upload: "README.md"
