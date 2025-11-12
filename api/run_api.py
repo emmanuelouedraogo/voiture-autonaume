@@ -18,14 +18,10 @@ from emmanuel_segmentation_package.pipeline import (
     create_weighted_loss,
     create_segmentation_image,
     load_segmentation_model,
-    download_file_from_url,
-    preprocess_image,
-    predict_segmentation,
-    get_class_statistics,
-    MODEL_URL,
-    CONFIG_URL,
-    CLASS_WEIGHTS_URL,
-    MODEL_CACHE_DIR
+    preprocess_image, predict_segmentation,
+    get_class_statistics, MODEL_PATH,
+    CONFIG_PATH,
+    CLASS_WEIGHTS_PATH
 )
 
 # --- Initialisation de l'application Flask ---
@@ -45,26 +41,13 @@ def initialize_model():
 
     print("Initialisation du modèle pour l'API...")
 
-    # Crée le répertoire de cache s'il n'existe pas
-    os.makedirs(MODEL_CACHE_DIR, exist_ok=True)
-
-    # Définir les chemins locaux pour les fichiers
-    final_model_path = os.path.join(MODEL_CACHE_DIR, "final_optimized_model.keras")
-    final_config_path = os.path.join(MODEL_CACHE_DIR, "class_mapping.json")
-    class_weights_path = os.path.join(MODEL_CACHE_DIR, "class_weights.json")
-
-    # Télécharger les fichiers s'ils n'existent pas
-    if not all([
-        download_file_from_url(MODEL_URL, final_model_path),
-        download_file_from_url(CONFIG_URL, final_config_path),
-        download_file_from_url(CLASS_WEIGHTS_URL, class_weights_path)
-    ]):
-        print("ERREUR: Échec du téléchargement des fichiers du modèle. L'API ne peut pas démarrer.", file=sys.stderr)
-        sys.exit(1)
-
-    # Charger le modèle et la configuration
+    # Charger le modèle et la configuration.
+    # La fonction gère maintenant le téléchargement si les fichiers sont absents.
     try:
-        model, config = load_segmentation_model(final_model_path, final_config_path, class_weights_path)
+        # Les chemins sont maintenant lus depuis les variables d'environnement dans le module pipeline
+        model, config = load_segmentation_model(
+            MODEL_PATH, CONFIG_PATH, CLASS_WEIGHTS_PATH
+        )
         print("Modèle et configuration chargés avec succès. L'API est prête.")
     except Exception as e:
         print(f"ERREUR: Échec du chargement du modèle : {e}", file=sys.stderr)

@@ -1,18 +1,26 @@
-# Fichiers de gestion de version
+# Ignorer les fichiers et dossiers liés à Git
 .git
 .gitignore
 
-# Environnements virtuels Python
-venv
-*.venv
-voitautoenv
+# Ignorer les fichiers de configuration spécifiques à l'IDE
+.idea/
+.vscode/
 
-# Fichiers de cache Python
+# Ignorer les environnements virtuels Python
+*.env
+.*.env
+venv/
+voitautoenv/
+
+# Ignorer les caches Python
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
 
-# Dossiers de sortie et de test
+# Fichiers de documentation et de test non nécessaires dans l'image finale
+README.md
+Note_technique.md
+run_performance_test.py
+test_images/
+tests/
 outputs/
-.pytest_cache/
+.github/

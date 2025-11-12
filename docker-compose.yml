@@ -5,17 +5,23 @@ services:
       dockerfile: Dockerfile
     container_name: segmentation_api
     ports:
-      - "5000:5000"
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models
     environment:
-      - MODEL_URL=https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.0.2/final_optimized_model.keras
-      - CONFIG_URL=https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.0.2/class_mapping.json
-      - CLASS_WEIGHTS_URL=https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.0.2/class_weights.json
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 120s
+      - MODEL_PATH=models/final_optimized_model.keras
+      - CONFIG_PATH=models/class_mapping.json
+      - CLASS_WEIGHTS_PATH=models/class_weights.json
+      # URLs pour télécharger les modèles si les fichiers ci-dessus ne sont pas trouvés
+      - MODEL_URL=https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.1.0/final_optimized_model.keras
+      - CONFIG_URL=https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.1.0/class_mapping.json
+      - CLASS_WEIGHTS_URL=https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.1.0/class_weights.json
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 120s
 
   frontend:
     build:
@@ -28,9 +34,9 @@ services:
     environment:
       # L'URL que le frontend utilisera pour contacter l'API.
       # 'http://api:8000' est l'adresse du service 'api' à l'intérieur du réseau Docker.
-      - API_URL=http://api:5000/predict
-    depends_on:
-      api:
-        # Le frontend ne démarrera que lorsque l'API sera saine (healthcheck réussi).
-        # Cela évite que le frontend démarre avant que le modèle de l'API ne soit chargé.
-        condition: service_healthy
+      - API_URL=http://api:8000/predict
+    # depends_on:
+    #   api:
+    #     # Le frontend ne démarrera que lorsque l'API sera saine (healthcheck réussi).
+    #     # Cela évite que le frontend démarre avant que le modèle de l'API ne soit chargé.
+    #     condition: service_healthy

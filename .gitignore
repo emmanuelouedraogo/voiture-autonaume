@@ -6,6 +6,7 @@ __pycache__/
 
 # Répertoires de cache du modèle et des sorties
 /model_cache/
+/models/
 /outputs/
 
 # Environnements virtuels

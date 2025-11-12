@@ -20,23 +20,28 @@ import tempfile # Import tempfile for saving downloaded images
 import traceback # Import traceback for printing full error information
 from matplotlib.colors import ListedColormap # Import ListedColormap
 
-# URLs for model, config, and class weights from GitHub releases
-# Lit les URLs depuis les variables d'environnement, avec des valeurs par défaut si elles ne sont pas définies.
-# C'est une bonne pratique pour la configuration des conteneurs.
+# --- Configuration ---
+
+# URLs pour le téléchargement des modèles si les fichiers locaux ne sont pas trouvés.
 MODEL_URL = os.getenv(
-    "MODEL_URL", "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.0.2/final_optimized_model.keras"
+    "MODEL_URL", "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.1.0/final_optimized_model.keras"
 )
 CONFIG_URL = os.getenv(
-    "CONFIG_URL", "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.0.2/class_mapping.json"
+    "CONFIG_URL", "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.1.0/class_mapping.json"
 )
 CLASS_WEIGHTS_URL = os.getenv(
-    "CLASS_WEIGHTS_URL", "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.0.2/class_weights.json"
+    "CLASS_WEIGHTS_URL", "https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.1.0/class_weights.json"
 )
 
-# Directory to cache downloaded model files
-MODEL_CACHE_DIR = "model_cache"
+# Chemins locaux où les modèles doivent être stockés et lus.
+# Lus depuis les variables d'environnement, avec des valeurs par défaut.
+MODEL_PATH = os.getenv("MODEL_PATH", "models/final_optimized_model.keras")
+CONFIG_PATH = os.getenv("CONFIG_PATH", "models/class_mapping.json")
+CLASS_WEIGHTS_PATH = os.getenv("CLASS_WEIGHTS_PATH", "models/class_weights.json")
 
 
+# La fonction de téléchargement n'est plus nécessaire pour le pipeline principal
+# mais peut être conservée comme un utilitaire.
 # Function to create a weighted loss function (needed for loading the model)
 def create_weighted_loss(class_weights):
     class_weights_tensor = tf.constant(class_weights, dtype=tf.float32)
@@ -49,13 +54,41 @@ def create_weighted_loss(class_weights):
         return tf.reduce_mean(weighted_loss)
     return weighted_loss
 
+def download_file_from_url(url, output_path):
+    """Télécharge un fichier depuis une URL si le chemin de sortie n'existe pas."""
+    if os.path.exists(output_path):
+        print(f"Fichier déjà existant, téléchargement ignoré : {output_path}")
+        return True
+
+    print(f"Téléchargement du fichier depuis {url} vers {output_path}...")
+    try:
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        with open(output_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+        print("Téléchargement terminé.") 
+        return True
+    except requests.exceptions.RequestException as e:
+        print(f"Erreur lors du téléchargement du fichier : {e}")
+        return False
 
 def load_segmentation_model(model_path, config_path, class_weights_path):
     """Loads the trained segmentation model and its configuration."""
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(f"Model not found at: {model_path}")
-    if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Configuration not found at: {config_path}")
+    # S'assurer que le répertoire de destination pour les modèles existe.
+    # C'est une bonne pratique de le faire ici, avant toute opération de fichier.
+    model_dir = os.path.dirname(model_path)
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
+
+    # --- Vérification et Téléchargement ---
+    # Tente de télécharger les fichiers uniquement s'ils sont manquants.
+    if not all([
+        download_file_from_url(MODEL_URL, model_path),
+        download_file_from_url(CONFIG_URL, config_path),
+        download_file_from_url(CLASS_WEIGHTS_URL, class_weights_path)
+    ]):
+        raise RuntimeError("Échec du téléchargement des fichiers de modèle requis. Impossible de continuer.")
 
     try:
         with open(config_path, 'r') as f:
@@ -113,25 +146,6 @@ def download_image(url):
     except requests.exceptions.RequestException as e:
         print(f"Error downloading image: {e}")
         return None
-
-def download_file_from_url(url, output_path):
-    """Downloads a file from a URL if it doesn't exist at the output path."""
-    if os.path.exists(output_path):
-        print(f"File already exists, skipping download: {output_path}")
-        return True
-
-    print(f"Downloading file from {url} to {output_path}...")
-    try:
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
-        with open(output_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-        print("Download complete.")
-        return True
-    except requests.exceptions.RequestException as e:
-        print(f"Error downloading file: {e}")
-        return False
 
 def preprocess_image(image_path=None, image_array=None, img_size=(224, 224)):
     """Preprocesses a single image for segmentation."""
@@ -385,27 +399,12 @@ if __name__ == "__main__":
             print(f"Error: Local image not found at {{image_to_process_path}}")
             sys.exit(1)
 
-    # --- Model and Config Loading with Download ---
-    # Create a directory to cache the model files
-    os.makedirs(MODEL_CACHE_DIR, exist_ok=True)
-
-    # Define local paths for the downloaded files
-    final_model_path = os.path.join(MODEL_CACHE_DIR, "final_optimized_model.keras")
-    final_config_path = os.path.join(MODEL_CACHE_DIR, "class_mapping.json")
-    class_weights_path = os.path.join(MODEL_CACHE_DIR, "class_weights.json")
-
-    # Download files if they don't exist
-    if not all([
-        download_file_from_url(MODEL_URL, final_model_path),
-        download_file_from_url(CONFIG_URL, final_config_path),
-        download_file_from_url(CLASS_WEIGHTS_URL, class_weights_path)
-    ]):
-        print("Failed to download required model files. Exiting.")
-        sys.exit(1)
-
     try:
-        # Load the model and config
-        model, config = load_segmentation_model(final_model_path, final_config_path, class_weights_path)
+        # Charger le modèle et la configuration à partir des chemins locaux
+        # (lus depuis les variables d'environnement ou les valeurs par défaut)
+        model, config = load_segmentation_model(
+            MODEL_PATH, CONFIG_PATH, CLASS_WEIGHTS_PATH
+        )
         print("Model and configuration loaded.")
 
         # Preprocess the image

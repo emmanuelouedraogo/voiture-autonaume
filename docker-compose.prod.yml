@@ -1,33 +1,41 @@
 version: "3.8"
 
-secrets:
-  internal_api_key:
-    file: ./internal_api_key.txt
-
 services:
   api:
     # Utilise l'image pré-construite depuis Docker Hub au lieu de la construire localement
     image: emmanuelouedraogo/voiture-autonome-api:latest
     container_name: segmentation_api
+    # Le port 8000 est exposé par l'image Docker
     ports:
       - "8000:8000"
-    secrets:
-      - internal_api_key
+    # Pour la production, les modèles sont inclus dans l'image.
+    # Si les modèles devaient être externes, on utiliserait des volumes et des variables d'environnement.
+    # environment:
+    #   - MODEL_PATH=/models/final_optimized_model.keras
+    #   - CONFIG_PATH=/models/class_mapping.json
+    #   - CLASS_WEIGHTS_PATH=/models/class_weights.json
+    # volumes:
+    #   - ./models:/models
     healthcheck:
+      # Le healthcheck doit pointer vers le port interne du conteneur (8000)
       test: ["CMD", "curl", "-f", "http://localhost:8000/"]
       interval: 30s
       timeout: 10s
       retries: 3
+      # Le start_period donne au modèle le temps de se charger avant que le healthcheck ne soit considéré comme échoué.
       start_period: 120s
 
   frontend:
     # Utilise l'image pré-construite depuis Docker Hub
     image: emmanuelouedraogo/voiture-autonome-frontend:latest
     container_name: segmentation_frontend
+    # Le port 8501 est exposé par l'image Docker du frontend
     ports:
       - "8501:8501"
     environment:
-      - API_URL=http://api:8000/segment/
+      # L'URL de l'API doit pointer vers le service 'api' sur le port 8000 et l'endpoint '/predict'
+      - API_URL=http://api:8000/predict
     depends_on:
       api:
+        # Le frontend ne démarrera que lorsque l'API sera saine (healthcheck réussi).
         condition: service_healthy

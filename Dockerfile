@@ -26,20 +26,16 @@ RUN useradd --create-home --shell /bin/bash appuser
 
 # Installer les dépendances système minimales nécessaires à l'exécution
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1 \
+    libgl1-mesa-glx \
     libglib2.0-0 \
-    fonts-dejavu-core \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copier les dépendances pré-compilées de l'étape de build
 COPY --from=builder /app/wheels /wheels
-RUN pip install --no-cache /wheels/*
+RUN pip install --no-cache-dir --no-index --find-links=/wheels /wheels/*
 
 # Copier le code de l'application
 COPY . .
-
-# Installer le package en mode éditable pour s'assurer que les chemins sont corrects
-RUN pip install -e .
 
 # Changer le propriétaire des fichiers pour l'utilisateur non-root
 RUN chown -R appuser:appuser /app
@@ -48,7 +44,7 @@ RUN chown -R appuser:appuser /app
 USER appuser
 
 # Exposer le port
-EXPOSE 5000
+EXPOSE 8000
 
 # Commande pour lancer l'API avec Gunicorn quand le conteneur démarre
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "api.run_api:app"]
+CMD ["python", "api/run_api.py"]

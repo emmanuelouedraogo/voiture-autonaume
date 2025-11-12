@@ -15,7 +15,7 @@ st.set_page_config(
 
 # --- Configuration de l'API ---
 # Utilise une variable d'environnement pour l'URL de l'API, avec une valeur par défaut pour le dev local.
-API_URL = os.getenv("API_URL", "http://127.0.0.1:5000/predict")
+API_URL = os.getenv("API_URL", "http://127.0.0.1:8000/predict")
 
 
 def call_segmentation_api(image_bytes, filename):
@@ -52,9 +52,9 @@ def call_segmentation_api(image_bytes, filename):
 
 def create_legend_image(stats, group_colors, items_per_row=4):
     """Crée une image de légende à partir des statistiques et des couleurs."""
-    # Filtrer les classes présentes dans l'image
+    # Filtrer les classes avec un pourcentage > 0 pour les inclure dans la légende
     present_stats = [s for s in stats if s['percentage'] > 0]
-    if not present_stats:
+    if not present_stats: # Si aucune classe n'est présente, ne pas créer d'image de légende.
         return None
 
     # Paramètres de la légende
@@ -62,7 +62,7 @@ def create_legend_image(stats, group_colors, items_per_row=4):
     box_size = 20
     font_size = 14
     line_height = font_size + padding
-    
+
     # Calculer le nombre de lignes et la hauteur de l'image de la légende
     num_rows = math.ceil(len(present_stats) / items_per_row)
     legend_height = num_rows * line_height + padding
@@ -74,12 +74,16 @@ def create_legend_image(stats, group_colors, items_per_row=4):
     font = ImageFont.load_default() # Utiliser la police par défaut pour la simplicité
 
     x_pos, y_pos = padding, padding // 2
-    item_width = legend_width // items_per_row
+    # S'assurer que la largeur de l'item est positive, même si items_per_row est 0 ou négatif.
+    if items_per_row > 0:
+        item_width = legend_width // items_per_row
+    else: # Cas de sécurité, ne devrait pas arriver avec la valeur par défaut.
+        item_width = legend_width
 
     for i, stat in enumerate(present_stats):
         if i > 0 and i % items_per_row == 0:
             x_pos = padding
-            y_pos += line_height
+            y_pos += line_height # Passer à la ligne suivante
         
         color = tuple(group_colors[stat['class_id']])
         draw.rectangle([x_pos, y_pos, x_pos + box_size, y_pos + box_size], fill=color, outline=(0,0,0))
@@ -94,7 +98,7 @@ def display_results(original_image, api_response):
 
     col1, col2 = st.columns(2)
     with col1:
-        st.image(original_image, caption="Image Originale", use_container_width=True)
+        st.image(original_image, caption="Image Originale", use_column_width=True)
 
     with col2:
         try:
@@ -106,7 +110,7 @@ def display_results(original_image, api_response):
             img_data_str = api_response['segmented_image'].split(',')[1]
             img_data = base64.b64decode(img_data_str)
             segmented_image = Image.open(io.BytesIO(img_data))
-            st.image(segmented_image, caption="Prédiction de Segmentation", use_container_width=True)
+            st.image(segmented_image, caption="Prédiction de Segmentation", use_column_width=True)
 
         except (IndexError, base64.binascii.Error) as e:
             st.error(f"Erreur lors du décodage de l'image de segmentation : {e}")

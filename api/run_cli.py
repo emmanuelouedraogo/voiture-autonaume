@@ -11,12 +11,10 @@ from emmanuel_segmentation_package import (
     predict_segmentation,
     get_class_statistics,
     visualize_prediction,
-    download_file_from_url,
-    is_url,
     download_image,
 )
 # ... et les constantes
-from emmanuel_segmentation_package.pipeline import MODEL_URL, CONFIG_URL, CLASS_WEIGHTS_URL, MODEL_CACHE_DIR
+from emmanuel_segmentation_package.pipeline import MODEL_PATH, CONFIG_PATH, CLASS_WEIGHTS_PATH
 
 def main():
     """
@@ -41,24 +39,12 @@ def main():
             print(f"Erreur: L'image locale n'a pas été trouvée à l'adresse {image_to_process_path}")
             sys.exit(1)
 
-    # --- Chargement du modèle et de la configuration avec téléchargement ---
-    os.makedirs(MODEL_CACHE_DIR, exist_ok=True)
-
-    final_model_path = os.path.join(MODEL_CACHE_DIR, "final_optimized_model.keras")
-    final_config_path = os.path.join(MODEL_CACHE_DIR, "class_mapping.json")
-    class_weights_path = os.path.join(MODEL_CACHE_DIR, "class_weights.json")
-
-    if not all([
-        download_file_from_url(MODEL_URL, final_model_path),
-        download_file_from_url(CONFIG_URL, final_config_path),
-        download_file_from_url(CLASS_WEIGHTS_URL, class_weights_path)
-    ]):
-        print("Échec du téléchargement des fichiers de modèle requis. Arrêt.")
-        sys.exit(1)
-
     try:
-        # Charger le modèle et la configuration
-        model, config = load_segmentation_model(final_model_path, final_config_path, class_weights_path)
+        # Charger le modèle et la configuration à partir des chemins locaux
+        # (lus depuis les variables d'environnement ou les valeurs par défaut)
+        model, config = load_segmentation_model(
+            MODEL_PATH, CONFIG_PATH, CLASS_WEIGHTS_PATH
+        )
         print("Modèle et configuration chargés.")
 
         # Prétraiter l'image

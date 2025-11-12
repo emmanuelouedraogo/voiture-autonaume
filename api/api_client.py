@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import sys
 import os
 
-def call_segmentation_api(image_path, api_url="http://127.0.0.1:5000/predict"):
+def call_segmentation_api(image_path, api_url="http://127.0.0.1:8000/predict"):
     """
     Appelle l'API de segmentation avec une image et retourne la réponse.
 
