@@ -135,4 +135,4 @@ if __name__ == '__main__':
 
     # Démarrer le serveur Flask
     # host='0.0.0.0' rend l'API accessible depuis d'autres machines sur le réseau
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
