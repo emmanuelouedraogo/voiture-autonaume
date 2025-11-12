@@ -12,7 +12,7 @@ RUN python -m pip install --upgrade pip
 COPY api/requirements.txt .
 
 # Installer les dépendances dans un répertoire local (wheelhouse)
-RUN pip wheel --no-cache-dir --wheel-dir=/app/wheels -r requirements.txt gunicorn
+RUN pip wheel --no-cache-dir --wheel-dir=/app/wheels -r requirements.txt
 
 
 # --- Étape 2: Final ---
