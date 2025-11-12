@@ -32,7 +32,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e .[test]
+        pip install -e ".[test,dev]"
 
     # Étape 4: Exécuter les tests avec pytest
     - name: Run tests with pytest

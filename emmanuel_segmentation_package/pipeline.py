@@ -13,8 +13,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
-import matplotlib.patches as mpatches
-from IPython.display import display # Only import display from IPython
+import matplotlib.patches as mpatches # Import mpatches
 import requests # Import requests for downloading images from URL
 from urllib.parse import urlparse # Import urlparse for checking if input is a URL
 import tempfile # Import tempfile for saving downloaded images
