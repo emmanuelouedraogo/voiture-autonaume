@@ -1,9 +1,0 @@
-# Dépendances pour l'API Flask
-flask
-python-dotenv
-tensorflow>=2.16
-numpy
-Pillow
-requests
-matplotlib
-gunicorn

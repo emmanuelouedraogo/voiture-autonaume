@@ -1,10 +1,7 @@
 ---title: Analyseur de Scène Routière
 # 🚗 Analyseur de Scène Routière
 
-<!-- Introduction : Fournit une vue d'ensemble du projet et de ses objectifs -->
 Ce projet fournit une solution complète pour la segmentation sémantique d'images de scènes de conduite. Il inclut :
-
-<!-- Composants clés : Met en évidence les principaux éléments du projet -->
 - Un **package Python** (`emmanuel_segmentation_package`) contenant la logique de segmentation.
 - Une **API Flask** pour servir les prédictions via HTTP.
 - Une **interface web Streamlit** pour une utilisation interactive.
@@ -13,17 +10,14 @@ Ce projet fournit une solution complète pour la segmentation sémantique d'imag
 
 ## ✨ Fonctionnalités
 
-<!-- Description des fonctionnalités : Détaille les capacités et avantages du projet -->
 - **Package Python Installable** : La logique de segmentation est encapsulée dans un package (`emmanuel_segmentation_package`) pour une réutilisation facile.
 - **API Web avec Flask** : Une API simple pour obtenir des prédictions via des requêtes HTTP. Elle retourne les statistiques de segmentation et l'image segmentée encodée en Base64.
 - **Interface Web Interactive** : Une application Streamlit conviviale pour uploader des images ou fournir des URLs et visualiser les résultats.
 - **Téléchargement Automatique des Modèles** : Le modèle (`.keras`), la configuration et les poids des classes sont téléchargés depuis les *releases* GitHub au premier lancement, évitant d'avoir à stocker de gros fichiers dans le dépôt.
 - **Conteneurisation avec Docker** : L'API et le frontend sont conteneurisés, et `docker-compose` orchestre le lancement de l'application complète.
 
-
 ## 📂 Structure du Projet
 
-<!-- Organisation du code : Fournit un aperçu de l'agencement des fichiers et répertoires -->
 ```
 voiture-autonome/
 ├── .gitignore          # Fichiers à ignorer par Git
