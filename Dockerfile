@@ -26,7 +26,7 @@ RUN useradd --create-home --shell /bin/bash appuser
 
 # Installer les dépendances système minimales nécessaires à l'exécution
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     fonts-dejavu-core \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
