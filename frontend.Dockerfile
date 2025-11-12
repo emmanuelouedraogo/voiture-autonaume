@@ -8,11 +8,11 @@ WORKDIR /app
 RUN python -m pip install --upgrade pip
 
 # Copier uniquement les fichiers de dépendances pour profiter de la mise en cache Docker
-COPY frontend/requirements.txt .
+COPY pyproject.toml .
 
 # Installer les dépendances dans un répertoire local (wheelhouse)
-RUN pip wheel --no-cache-dir --wheel-dir=/app/wheels -r requirements.txt 
-
+# On installe les dépendances de base + streamlit, requests, pillow
+RUN pip wheel --no-cache-dir --wheel-dir=/app/wheels . streamlit requests Pillow
 
 # --- Étape 2: Final ---
 # Utilise une image slim pour une taille finale réduite

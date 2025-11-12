@@ -1,14 +1,17 @@
 ---
-title: 🚗
+title: Analyseur de Scène Routière
+emoji: 🚗
 colorFrom: blue
 colorTo: green
-sdk: python
+sdk: docker
 pinned: false
 ---
 
 # 🚗 Analyseur de Scène Routière
-ojet fournit une solution complète pour la segmentation sémantique d'images de scènes de conduite. Il inclut :
 
+Ce projet fournit une solution complète pour la segmentation sémantique d'images de scènes de conduite. Il inclut :
+- Un **package Python** (`emmanuel_segmentation_package`) pour la logique de segmentation.
+- Une **API Flask** pour servir les prédictions via HTTP.
 - Une **interface web Streamlit** pour une utilisation interactive.
 - Une configuration **Docker** pour un déploiement facile et reproductible.
 
@@ -19,6 +22,7 @@ ojet fournit une solution complète pour la segmentation sémantique d'images de
 - **Interface Web Interactive** : Une application Streamlit conviviale pour uploader des images ou fournir des URLs et visualiser les résultats.
 - **Téléchargement Automatique** : Le modèle (`.keras`), la configuration et les poids des classes sont téléchargés depuis les *releases* GitHub au premier lancement, évitant d'avoir à stocker de gros fichiers dans le dépôt.
 - **Conteneurisation avec Docker** : L'API et le frontend sont conteneurisés, et `docker-compose` orchestre le lancement de l'application complète.
+
 ## 📂 Structure du Projet
 
 ```
