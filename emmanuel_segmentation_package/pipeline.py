@@ -2,7 +2,15 @@ import tensorflow as tf
 import numpy as np
 import json
 import os
+from PIL import Image, ImageDraw, ImageFont # Correct import for PIL Image
 from PIL import Image # Correct import for PIL Image
+import io # <-- AJOUT : Importer le module io pour la gestion des flux binaires
+
+# --- Configuration de Matplotlib ---
+# Doit être fait AVANT d'importer pyplot
+# Utilise un backend "non interactif" pour éviter les problèmes dans les threads (ex: API Flask)
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib.patches as mpatches
@@ -198,22 +206,76 @@ def get_class_statistics(prediction_mask, config):
 
 def create_segmentation_image(prediction_mask, config):
     """
-    Crée une image couleur (objet PIL.Image) à partir d'un masque de prédiction.
+    Crée une image couleur (objet PIL.Image) à partir d'un masque de prédiction,
+    en conservant les dimensions exactes du masque.
+    Crée une image couleur à partir d'un masque de prédiction, en conservant
+    les dimensions et en y ajoutant une légende sur le côté.
     """
     if 'group_colors' not in config:
         raise ValueError("La configuration doit contenir 'group_colors'.")
+    required_keys = ['group_colors', 'group_names']
+    for key in required_keys:
+        if key not in config:
+            raise ValueError(f"La configuration doit contenir '{key}'.")
 
+    # Créer une palette de couleurs [R, G, B] à partir de la configuration.
+    # Le tableau doit être de type uint8 pour la création d'image.
+    color_palette = np.array(config['group_colors'], dtype=np.uint8)
+
+    # Créer une image vide avec les mêmes dimensions que le masque, mais avec 3 canaux (RGB).
     height, width = prediction_mask.shape
-    # S'assurer que les couleurs sont un tableau numpy pour un indexage facile
-    colors = np.array(config['group_colors'], dtype=np.uint8)
+    color_mask = np.zeros((height, width, 3), dtype=np.uint8)
 
-    # Créer une image RGB vide
-    rgb_mask = np.zeros((height, width, 3), dtype=np.uint8)
+    # Utiliser l'indexation avancée de NumPy pour mapper chaque ID de classe à sa couleur.
+    # C'est une méthode très rapide et efficace.
+    color_mask = color_palette[prediction_mask]
+    mask_image = Image.fromarray(color_mask)
 
-    # Appliquer les couleurs basées sur les identifiants de classe dans le masque
-    rgb_mask = colors[prediction_mask]
+    # Convertir le tableau NumPy en une image PIL.
+    return Image.fromarray(color_mask)
+    # --- Création de la légende avec Pillow ---
+    legend_width = 200
+    padding = 10
+    font_size = 15
+    box_size = 20
+    line_height = font_size + 10
 
-    return Image.fromarray(rgb_mask)
+    # Essayer de charger une police TrueType, sinon utiliser la police par défaut
+    try:
+        # Sur de nombreux systèmes Linux, cette police est disponible.
+        font = ImageFont.truetype("DejaVuSans.ttf", font_size)
+    except IOError:
+        # Si la police n'est pas trouvée, utiliser la police par défaut de Pillow.
+        print("Avertissement: Police DejaVuSans.ttf non trouvée. Utilisation de la police par défaut.")
+        font = ImageFont.load_default()
+
+    # Créer une nouvelle image pour contenir le masque et la légende
+    new_width = mask_image.width + legend_width
+    new_height = mask_image.height
+    composite_image = Image.new('RGB', (new_width, new_height), (255, 255, 255))
+
+    # Coller l'image du masque
+    composite_image.paste(mask_image, (0, 0))
+
+    # Préparer le dessin sur la partie droite (la légende)
+    draw = ImageDraw.Draw(composite_image)
+
+    # Position de départ pour la première ligne de la légende
+    y_text = padding
+
+    for i, (name, color) in enumerate(zip(config['group_names'], config['group_colors'])):
+        # Dessiner le carré de couleur
+        box_x0 = mask_image.width + padding
+        box_y0 = y_text
+        box_x1 = box_x0 + box_size
+        box_y1 = box_y0 + box_size
+        draw.rectangle([box_x0, box_y0, box_x1, box_y1], fill=tuple(color), outline=(0, 0, 0))
+
+        # Dessiner le nom de la classe
+        draw.text((box_x1 + padding, y_text), name, font=font, fill=(0, 0, 0))
+        y_text += line_height
+
+    return composite_image
 
 def visualize_prediction(original_image_array, prediction_mask, config, save_path=None):
     """Visualizes the original image and the segmented mask with a legend."""
@@ -233,8 +295,8 @@ def visualize_prediction(original_image_array, prediction_mask, config, save_pat
     colors = [tuple(c / 255.0 for c in color) for color in config['group_colors']]
     cmap = ListedColormap(colors)
 
-    # Create subplots: 1 row, 2 columns for images, plus space for legend
-    fig, axes = plt.subplots(1, 2, figsize=(16, 8)) # Adjusted figsize
+    # Utiliser constrained_layout=True pour une gestion automatique et robuste de la mise en page
+    fig, axes = plt.subplots(1, 2, figsize=(18, 8), constrained_layout=True)
 
     # Display Original Image
     axes[0].imshow(original_image_array)
@@ -254,13 +316,11 @@ def visualize_prediction(original_image_array, prediction_mask, config, save_pat
             patch = mpatches.Patch(color=colors[class_id], label=config['group_names'][class_id])
             legend_handles.append(patch)
 
-    # Add legend to the figure
-    # Adjust bbox_to_anchor to position the legend to the right of the plots
-    fig.legend(handles=legend_handles, loc='center left', bbox_to_anchor=(1, 0.5), frameon=False)
-
-    plt.tight_layout(rect=[0, 0, 0.85, 1]) # Adjust rect to make space for the legend
+    # Placer la légende à l'extérieur de l'axe de droite, constrained_layout lui fera de la place
+    axes[1].legend(handles=legend_handles, loc="center left", bbox_to_anchor=(1.05, 0.5), frameon=False)
 
     if save_path:
+        # bbox_inches='tight' reste la meilleure pratique pour s'assurer que tout est inclus
         plt.savefig(save_path, bbox_inches='tight')
         print(f"Visualization saved to: {{save_path}}")
 

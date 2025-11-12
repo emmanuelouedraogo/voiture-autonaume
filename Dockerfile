@@ -34,9 +34,9 @@ RUN chown -R appuser:appuser /app
 USER appuser
 
 # Exposer le port
-EXPOSE 8000
+EXPOSE 5000
 
 # Commande pour lancer l'API avec Gunicorn quand le conteneur démarre
 # 'api.run_api:app' pointe vers l'objet 'app' de Flask dans votre script.
 # Le nombre de 'workers' peut être ajusté en fonction des cœurs de CPU disponibles.
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "api.run_api:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "api.run_api:app"]

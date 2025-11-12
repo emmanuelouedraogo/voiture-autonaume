@@ -10,6 +10,10 @@ pinned: false
 # 🚗 emmanuel_segmentation_package
 
 Ce projet fournit un package Python pour la segmentation sémantique d'images de scènes de conduite, ainsi qu'une API web simple pour servir les prédictions. Le modèle et sa configuration sont téléchargés automatiquement depuis les *releases* GitHub, rendant le projet portable et facile à utiliser.
+- Un **package Python** (`emmanuel_segmentation_package`) pour la logique de segmentation.
+- Une **API Flask** pour servir les prédictions via HTTP.
+- Une **interface web Streamlit** pour une utilisation interactive.
+- Une configuration **Docker** pour un déploiement facile et reproductible.
 
 ## ✨ Fonctionnalités
 
@@ -17,6 +21,7 @@ Ce projet fournit un package Python pour la segmentation sémantique d'images de
 - **API Web avec Flask** : Une API simple pour obtenir des prédictions via des requêtes HTTP. Elle retourne les statistiques de segmentation et l'image segmentée encodée en Base64.
 - **Interface en Ligne de Commande (CLI)** : Un script pour lancer des prédictions directement depuis le terminal sur une image locale ou une URL.
 - **Téléchargement Automatique** : Le modèle (`.keras`), la configuration et les poids des classes sont téléchargés depuis les *releases* GitHub au premier lancement, évitant d'avoir à stocker de gros fichiers dans le dépôt.
+- **Conteneurisation avec Docker** : L'API et le frontend sont conteneurisés, et `docker-compose` orchestre le lancement de l'application complète.
 
 ## 📂 Structure du Projet
 

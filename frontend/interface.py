@@ -4,8 +4,6 @@ from PIL import Image
 import io
 import os
 import base64
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 
 # --- Configuration de la page ---
 st.set_page_config(
@@ -36,6 +34,16 @@ def call_segmentation_api(image_bytes, filename):
                 st.code(response.text) # Affiche le texte brut de la réponse pour le débogage
                 return None
 
+        except requests.exceptions.HTTPError as e:
+            # Gérer spécifiquement les erreurs HTTP (4xx, 5xx)
+            st.error(f"L'API a retourné une erreur {e.response.status_code}.")
+            try:
+                # Essayer d'afficher le message d'erreur détaillé de l'API
+                error_details = e.response.json()
+                st.error(f"Détails de l'API : {error_details.get('error', '')} - {error_details.get('details', 'Aucun détail fourni.')}")
+            except ValueError:
+                st.error("La réponse d'erreur de l'API n'était pas au format JSON.")
+            return None # Retourner explicitement None en cas d'erreur HTTP
         except requests.exceptions.RequestException as e:
             st.error(f"Erreur de connexion à l'API : {e}")
             st.warning("Veuillez vérifier que le service API est bien démarré et accessible.")
@@ -53,36 +61,15 @@ def display_results(original_image, api_response):
 
     with col2:
         try:
-            # Vérifier que les clés nécessaires sont présentes
-            if 'segmented_image' not in api_response or 'statistics' not in api_response or 'colors' not in api_response:
-                st.error("La réponse de l'API est mal formatée. Clés 'segmented_image', 'statistics' ou 'colors' manquantes.")
+            if 'segmented_image' not in api_response or 'statistics' not in api_response:
+                st.error("La réponse de l'API est mal formatée. Clés 'segmented_image' ou 'statistics' manquantes.")
                 return
 
             # Décode l'image de segmentation depuis la chaîne Base64
             img_data_str = api_response['segmented_image'].split(',')[1]
             img_data = base64.b64decode(img_data_str)
             segmented_image = Image.open(io.BytesIO(img_data))
-
-            # --- Création de l'image avec légende en utilisant Matplotlib ---
-            fig, ax = plt.subplots(figsize=(10, 10))
-            ax.imshow(segmented_image)
-            ax.axis('off') # Masquer les axes
-
-            # Créer les éléments de la légende
-            legend_patches = []
-            class_colors = api_response['colors']
-            for stat in sorted(api_response['statistics'], key=lambda x: x['class_id']):
-                class_id = stat['class_id']
-                class_name = stat['class_name'].capitalize()
-                if class_id < len(class_colors):
-                    color = np.array(class_colors[class_id]) / 255.0
-                    patch = mpatches.Patch(color=color, label=f"{class_name}")
-                    legend_patches.append(patch)
-            
-            # Ajouter la légende à droite de l'image
-            ax.legend(handles=legend_patches, loc='center left', bbox_to_anchor=(1.05, 0.5), fontsize='large')
-            
-            st.pyplot(fig, use_container_width=True)
+            st.image(segmented_image, caption="Prédiction de Segmentation avec Légende", use_container_width=True)
 
         except (IndexError, base64.binascii.Error) as e:
             st.error(f"Erreur lors du décodage de l'image de segmentation : {e}")
@@ -148,7 +135,7 @@ if image_bytes:
         original_image = Image.open(io.BytesIO(image_bytes))
         
         # Bouton pour lancer l'analyse
-        if st.button("Lancer l'Analyse", use_container_width=True, type="primary"):
+        if st.button("Lancer l'Analyse", use_container_width=True, type="primary"): # use_container_width est correct pour st.button
             api_response = call_segmentation_api(image_bytes, filename)
             if api_response:
                 display_results(original_image, api_response)

@@ -5,13 +5,13 @@ services:
       dockerfile: Dockerfile
     container_name: segmentation_api
     ports:
-      - "8000:8000"
+      - "5000:5000"
     environment:
       - MODEL_URL=https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.0.2/final_optimized_model.keras
       - CONFIG_URL=https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.0.2/class_mapping.json
       - CLASS_WEIGHTS_URL=https://github.com/emmanuelouedraogo/voiture-autonaume/releases/download/v0.0.2/class_weights.json
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -28,7 +28,7 @@ services:
     environment:
       # L'URL que le frontend utilisera pour contacter l'API.
       # 'http://api:8000' est l'adresse du service 'api' à l'intérieur du réseau Docker.
-      - API_URL=http://api:8000/predict
+      - API_URL=http://api:5000/predict
     depends_on:
       api:
         # Le frontend ne démarrera que lorsque l'API sera saine (healthcheck réussi).

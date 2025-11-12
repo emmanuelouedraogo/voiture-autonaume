@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-load_dotenv() # Charge les variables depuis le fichier .env
+load_dotenv()  # Charge les variables depuis le fichier .env
 
 # Le reste de votre code...
 import os
@@ -13,7 +13,7 @@ import io
 
 # Importez les fonctions de votre script de pipeline existant
 # Assurez-vous que segmentation_pipeline.py est dans le même répertoire
-# ou, mieux, que le package est installé (pip install -e .)
+# ou, mieux, que le package est installé en mode éditable (pip install -e .)
 from emmanuel_segmentation_package.pipeline import (
     create_weighted_loss,
     create_segmentation_image,
@@ -118,8 +118,7 @@ def predict():
         # Préparer la réponse finale
         response_data = {
             "statistics": class_stats,
-            "segmented_image": f"data:image/png;base64,{img_str}",
-            "colors": config.get('group_colors', []) # Ajout des couleurs pour la légende
+            "segmented_image": f"data:image/png;base64,{img_str}"
         }
 
         return jsonify(response_data)
@@ -135,4 +134,4 @@ if __name__ == '__main__':
 
     # Démarrer le serveur Flask
     # host='0.0.0.0' rend l'API accessible depuis d'autres machines sur le réseau
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5000, debug=True)

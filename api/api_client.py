@@ -58,22 +58,27 @@ def display_results(original_image_path, api_response):
     plt.tight_layout()
     plt.show()
 
-if __name__ == "__main__":
+def main():
+    """Fonction principale pour exécuter le client API."""
     if len(sys.argv) != 2:
         print("Usage: python api_client.py <chemin_vers_image>")
         sys.exit(1)
 
     image_file = sys.argv[1]
-    
+
     # 1. Appeler l'API
     response_data = call_segmentation_api(image_file)
 
     if response_data:
         # 2. Afficher les statistiques
         print("\n--- Statistiques de Segmentation ---")
-        for stat in sorted(response_data['statistics'], key=lambda x: x['percentage'], reverse=True):
-            print(f"- {stat['class_name']:<15}: {stat['percentage']:.2f}%")
+        stats = sorted(response_data.get('statistics', []), key=lambda x: x.get('percentage', 0), reverse=True)
+        for stat in stats:
+            print(f"- {stat.get('class_name', 'N/A'):<15}: {stat.get('percentage', 0):.2f}%")
 
         # 3. Afficher les images
         print("\nAffichage des résultats visuels...")
         display_results(image_file, response_data)
+
+if __name__ == "__main__":
+    main()
