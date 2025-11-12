@@ -28,3 +28,6 @@ impenv/
 build/
 dist/
 *.egg-info/
+
+# Fichiers texte
+prompts.txt

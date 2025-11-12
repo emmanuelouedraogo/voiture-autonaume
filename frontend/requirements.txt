@@ -1,4 +1,4 @@
+# Dépendances pour le frontend Streamlit
 streamlit
 requests
 Pillow
-numpy

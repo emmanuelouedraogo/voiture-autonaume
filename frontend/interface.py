@@ -1,9 +1,9 @@
 import streamlit as st
 import requests
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import io
 import os
-import base64
+import base64, math
 
 # --- Configuration de la page ---
 st.set_page_config(
@@ -50,6 +50,43 @@ def call_segmentation_api(image_bytes, filename):
             return None
 
 
+def create_legend_image(stats, group_colors, items_per_row=4):
+    """Crée une image de légende à partir des statistiques et des couleurs."""
+    # Filtrer les classes présentes dans l'image
+    present_stats = [s for s in stats if s['percentage'] > 0]
+    if not present_stats:
+        return None
+
+    # Paramètres de la légende
+    padding = 10
+    box_size = 20
+    font_size = 14
+    line_height = font_size + padding
+    
+    # Calculer le nombre de lignes et la hauteur de l'image de la légende
+    num_rows = math.ceil(len(present_stats) / items_per_row)
+    legend_height = num_rows * line_height + padding
+    legend_width = 600 # Largeur fixe pour la légende
+
+    # Créer l'image de la légende
+    legend_image = Image.new('RGB', (legend_width, legend_height), (255, 255, 255))
+    draw = ImageDraw.Draw(legend_image)
+    font = ImageFont.load_default() # Utiliser la police par défaut pour la simplicité
+
+    x_pos, y_pos = padding, padding // 2
+    item_width = legend_width // items_per_row
+
+    for i, stat in enumerate(present_stats):
+        if i > 0 and i % items_per_row == 0:
+            x_pos = padding
+            y_pos += line_height
+        
+        color = tuple(group_colors[stat['class_id']])
+        draw.rectangle([x_pos, y_pos, x_pos + box_size, y_pos + box_size], fill=color, outline=(0,0,0))
+        draw.text((x_pos + box_size + 5, y_pos), f"{stat['class_name']}", font=font, fill=(0,0,0))
+        x_pos += item_width
+
+    return legend_image
 
 def display_results(original_image, api_response):
     """Affiche l'image originale, le masque de segmentation et les statistiques."""
@@ -69,11 +106,16 @@ def display_results(original_image, api_response):
             img_data_str = api_response['segmented_image'].split(',')[1]
             img_data = base64.b64decode(img_data_str)
             segmented_image = Image.open(io.BytesIO(img_data))
-            st.image(segmented_image, caption="Prédiction de Segmentation avec Légende", use_container_width=True)
+            st.image(segmented_image, caption="Prédiction de Segmentation", use_container_width=True)
 
         except (IndexError, base64.binascii.Error) as e:
             st.error(f"Erreur lors du décodage de l'image de segmentation : {e}")
             return
+    
+    # Créer et afficher la légende séparément
+    legend_img = create_legend_image(api_response['statistics'], api_response['config']['group_colors'])
+    if legend_img:
+        st.image(legend_img, caption="Légende des classes détectées")
 
     st.subheader("📊 Statistiques des Classes Détectées")
     

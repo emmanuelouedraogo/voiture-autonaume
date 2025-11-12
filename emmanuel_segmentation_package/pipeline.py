@@ -204,76 +204,104 @@ def get_class_statistics(prediction_mask, config):
 
     return class_stats
 
-def create_segmentation_image(prediction_mask, config):
+def create_segmentation_image(prediction_mask, config, with_legend=False, legend_bgcolor=(255, 255, 255), legend_textcolor=(0, 0, 0)):
     """
-    Crée une image couleur (objet PIL.Image) à partir d'un masque de prédiction,
-    en conservant les dimensions exactes du masque.
     Crée une image couleur à partir d'un masque de prédiction, en conservant
-    les dimensions et en y ajoutant une légende sur le côté.
+    les dimensions. Si with_legend=True, y ajoute une légende avec des
+    couleurs personnalisables.
     """
-    if 'group_colors' not in config:
-        raise ValueError("La configuration doit contenir 'group_colors'.")
     required_keys = ['group_colors', 'group_names']
     for key in required_keys:
         if key not in config:
             raise ValueError(f"La configuration doit contenir '{key}'.")
 
     # Créer une palette de couleurs [R, G, B] à partir de la configuration.
-    # Le tableau doit être de type uint8 pour la création d'image.
     color_palette = np.array(config['group_colors'], dtype=np.uint8)
 
-    # Créer une image vide avec les mêmes dimensions que le masque, mais avec 3 canaux (RGB).
-    height, width = prediction_mask.shape
-    color_mask = np.zeros((height, width, 3), dtype=np.uint8)
-
     # Utiliser l'indexation avancée de NumPy pour mapper chaque ID de classe à sa couleur.
-    # C'est une méthode très rapide et efficace.
     color_mask = color_palette[prediction_mask]
     mask_image = Image.fromarray(color_mask)
 
-    # Convertir le tableau NumPy en une image PIL.
-    return Image.fromarray(color_mask)
-    # --- Création de la légende avec Pillow ---
-    legend_width = 200
+    # Si aucune légende n'est demandée, retourner l'image de segmentation brute.
+    if not with_legend:
+        return mask_image
+
+    # --- Création de la légende dynamique avec Pillow ---
+    # Paramètres de la légende
     padding = 10
-    font_size = 15
     box_size = 20
-    line_height = font_size + 10
+    item_spacing = 15  # Espace entre les éléments de la légende (carré + texte)
+    max_legend_lines = 2 # Nombre de lignes maximum avant de réduire la police
 
-    # Essayer de charger une police TrueType, sinon utiliser la police par défaut
-    try:
-        # Sur de nombreux systèmes Linux, cette police est disponible.
-        font = ImageFont.truetype("DejaVuSans.ttf", font_size)
-    except IOError:
-        # Si la police n'est pas trouvée, utiliser la police par défaut de Pillow.
-        print("Avertissement: Police DejaVuSans.ttf non trouvée. Utilisation de la police par défaut.")
-        font = ImageFont.load_default()
+    # Fonction utilitaire pour charger la police
+    def load_font(size):
+        try:
+            return ImageFont.truetype("DejaVuSans.ttf", size)
+        except IOError:
+            print(f"Avertissement: Police DejaVuSans.ttf non trouvée. Utilisation de la police par défaut (taille {size}).")
+            # La police par défaut n'a pas de taille, mais on la charge quand même
+            return ImageFont.load_default()
 
-    # Créer une nouvelle image pour contenir le masque et la légende
-    new_width = mask_image.width + legend_width
-    new_height = mask_image.height
-    composite_image = Image.new('RGB', (new_width, new_height), (255, 255, 255))
+    # Fonction utilitaire pour calculer la disposition de la légende
+    def calculate_layout(font):
+        num_lines = 1
+        x_pos = padding
+        # On a besoin d'un objet Draw temporaire pour mesurer le texte
+        temp_draw = ImageDraw.Draw(Image.new('RGB', (1,1)))
+        for name in config['group_names']:
+            text_width = temp_draw.textlength(name, font=font)
+            item_width = box_size + 5 + text_width + item_spacing
+            if x_pos + item_width > mask_image.width and x_pos != padding:
+                num_lines += 1
+                x_pos = padding
+            x_pos += item_width
+        return num_lines
+
+    # 1. Déterminer la taille de police et la disposition
+    font_size = 15
+    font = load_font(font_size)
+    num_lines = calculate_layout(font)
+
+    if num_lines > max_legend_lines:
+        font_size = 12  # Réduire la taille de la police
+        font = load_font(font_size)
+        num_lines = calculate_layout(font) # Recalculer avec la nouvelle police
+
+    # 2. Calculer la hauteur dynamique de la légende en fonction de la disposition finale
+    line_height = font_size + padding
+    legend_height = (num_lines * line_height) + padding
+
+    # 3. Créer une nouvelle image plus haute pour contenir le masque et la légende
+    new_width = mask_image.width
+    new_height = mask_image.height + legend_height
+    composite_image = Image.new('RGB', (new_width, new_height), legend_bgcolor)
 
     # Coller l'image du masque
     composite_image.paste(mask_image, (0, 0))
 
-    # Préparer le dessin sur la partie droite (la légende)
+    # 4. Préparer le dessin sur la partie basse (la légende)
     draw = ImageDraw.Draw(composite_image)
 
-    # Position de départ pour la première ligne de la légende
-    y_text = padding
+    # 5. Dessiner la légende avec retour à la ligne
+    x_pos = padding
+    y_pos = mask_image.height + (padding // 2)
 
-    for i, (name, color) in enumerate(zip(config['group_names'], config['group_colors'])):
+    for name, color in zip(config['group_names'], config['group_colors']):
+        text_width = draw.textlength(name, font=font)
+        item_width = box_size + 5 + text_width + item_spacing
+
+        # Si l'élément dépasse, passer à la ligne suivante
+        if x_pos + item_width > new_width and x_pos != padding:
+            x_pos = padding
+            y_pos += line_height
+
         # Dessiner le carré de couleur
-        box_x0 = mask_image.width + padding
-        box_y0 = y_text
-        box_x1 = box_x0 + box_size
-        box_y1 = box_y0 + box_size
-        draw.rectangle([box_x0, box_y0, box_x1, box_y1], fill=tuple(color), outline=(0, 0, 0))
+        draw.rectangle([x_pos, y_pos, x_pos + box_size, y_pos + box_size], fill=tuple(color), outline=legend_textcolor)
+        x_pos += box_size + 5
 
         # Dessiner le nom de la classe
-        draw.text((box_x1 + padding, y_text), name, font=font, fill=(0, 0, 0))
-        y_text += line_height
+        draw.text((x_pos, y_pos), name, font=font, fill=legend_textcolor)
+        x_pos += text_width + item_spacing
 
     return composite_image
 

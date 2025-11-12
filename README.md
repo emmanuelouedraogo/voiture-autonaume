@@ -1,17 +1,14 @@
 ---
-title: Emmanuel Segmentation Package
-emoji: 🚗
+title: 🚗
 colorFrom: blue
 colorTo: green
 sdk: python
 pinned: false
 ---
 
-# 🚗 emmanuel_segmentation_package
+# 🚗 Analyseur de Scène Routière
+ojet fournit une solution complète pour la segmentation sémantique d'images de scènes de conduite. Il inclut :
 
-Ce projet fournit un package Python pour la segmentation sémantique d'images de scènes de conduite, ainsi qu'une API web simple pour servir les prédictions. Le modèle et sa configuration sont téléchargés automatiquement depuis les *releases* GitHub, rendant le projet portable et facile à utiliser.
-- Un **package Python** (`emmanuel_segmentation_package`) pour la logique de segmentation.
-- Une **API Flask** pour servir les prédictions via HTTP.
 - Une **interface web Streamlit** pour une utilisation interactive.
 - Une configuration **Docker** pour un déploiement facile et reproductible.
 
@@ -19,10 +16,9 @@ Ce projet fournit un package Python pour la segmentation sémantique d'images de
 
 - **Package Python Installable** : La logique de segmentation est encapsulée dans un package (`emmanuel_segmentation_package`) pour une réutilisation facile.
 - **API Web avec Flask** : Une API simple pour obtenir des prédictions via des requêtes HTTP. Elle retourne les statistiques de segmentation et l'image segmentée encodée en Base64.
-- **Interface en Ligne de Commande (CLI)** : Un script pour lancer des prédictions directement depuis le terminal sur une image locale ou une URL.
+- **Interface Web Interactive** : Une application Streamlit conviviale pour uploader des images ou fournir des URLs et visualiser les résultats.
 - **Téléchargement Automatique** : Le modèle (`.keras`), la configuration et les poids des classes sont téléchargés depuis les *releases* GitHub au premier lancement, évitant d'avoir à stocker de gros fichiers dans le dépôt.
 - **Conteneurisation avec Docker** : L'API et le frontend sont conteneurisés, et `docker-compose` orchestre le lancement de l'application complète.
-
 ## 📂 Structure du Projet
 
 ```

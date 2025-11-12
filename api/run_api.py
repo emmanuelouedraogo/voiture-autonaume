@@ -118,7 +118,8 @@ def predict():
         # Préparer la réponse finale
         response_data = {
             "statistics": class_stats,
-            "segmented_image": f"data:image/png;base64,{img_str}"
+            "segmented_image": f"data:image/png;base64,{img_str}", # <-- VIRGULE AJOUTÉE
+            "config": {"group_colors": config['group_colors']} # Ajouter les couleurs pour la légende du frontend
         }
 
         return jsonify(response_data)

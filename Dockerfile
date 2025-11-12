@@ -1,25 +1,39 @@
-# Utiliser une image Python slim pour une taille de base réduite
-FROM python:3.9-slim
+# --- Étape 1: Builder ---
+# Utilise une image Python complète pour construire les dépendances
+FROM python:3.10-slim as builder
 
 # Définir le répertoire de travail
 WORKDIR /app
 
-# Installer les dépendances système minimales (si nécessaire pour certaines bibliothèques comme OpenCV)
-RUN apt-get update && apt-get install -y --no-install-recommends libgl1-mesa-glx libglib2.0-0 && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
 # Mettre à jour pip
 RUN python -m pip install --upgrade pip
 
-# Copier uniquement le fichier de configuration pour profiter de la mise en cache Docker
-COPY pyproject.toml .
+# Copier uniquement les fichiers de dépendances pour profiter de la mise en cache Docker
+COPY api/requirements.txt .
 
-# Installer les dépendances, y compris Gunicorn pour la production
-# Cette étape sera mise en cache si pyproject.toml ne change pas
-RUN pip install --no-cache-dir . "gunicorn" "python-dotenv"
+# Installer les dépendances dans un répertoire local (wheelhouse)
+RUN pip wheel --no-cache-dir --wheel-dir=/app/wheels -r requirements.txt gunicorn
+
+
+# --- Étape 2: Final ---
+# Utilise une image slim pour une taille finale réduite
+FROM python:3.10-slim
+
+WORKDIR /app
 
 # Créer un utilisateur non-root pour des raisons de sécurité
 RUN useradd --create-home --shell /bin/bash appuser
+
+# Installer les dépendances système minimales nécessaires à l'exécution
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    fonts-dejavu-core \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copier les dépendances pré-compilées de l'étape de build
+COPY --from=builder /app/wheels /wheels
+RUN pip install --no-cache /wheels/*
 
 # Copier le code de l'application
 COPY . .
@@ -27,7 +41,7 @@ COPY . .
 # Installer le package en mode éditable pour s'assurer que les chemins sont corrects
 RUN pip install -e .
 
-# Changer le propriétaire du répertoire de l'application
+# Changer le propriétaire des fichiers pour l'utilisateur non-root
 RUN chown -R appuser:appuser /app
 
 # Définir l'utilisateur non-root
@@ -37,6 +51,4 @@ USER appuser
 EXPOSE 5000
 
 # Commande pour lancer l'API avec Gunicorn quand le conteneur démarre
-# 'api.run_api:app' pointe vers l'objet 'app' de Flask dans votre script.
-# Le nombre de 'workers' peut être ajusté en fonction des cœurs de CPU disponibles.
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "api.run_api:app"]
