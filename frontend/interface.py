@@ -122,14 +122,16 @@ def display_results(original_image, api_response):
     # Trier les statistiques par pourcentage pour un meilleur affichage
     sorted_stats = sorted(api_response['statistics'], key=lambda x: x['percentage'], reverse=True)
     
+    # Filtrer les classes avec un pourcentage supérieur à zéro
+    present_stats = [s for s in sorted_stats if s['percentage'] > 0]
+    
     # Afficher les statistiques dans des colonnes pour un look plus propre
-    stats_cols = st.columns(4)
-    col_index = 0
-    for stat in sorted_stats:
-        if stat['percentage'] > 0:
-            with stats_cols[col_index % 4]:
+    if present_stats:
+        num_cols = min(len(present_stats), 4) # Utiliser jusqu'à 4 colonnes
+        stats_cols = st.columns(num_cols)
+        for i, stat in enumerate(present_stats):
+            with stats_cols[i % num_cols]:
                 st.metric(label=stat['class_name'].capitalize(), value=f"{stat['percentage']:.2f}%")
-            col_index += 1
 
 
 # --- Interface Principale ---
