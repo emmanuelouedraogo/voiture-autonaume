@@ -77,11 +77,12 @@ jobs:
 
       # Étape 2: Uploader le README.md pour déclencher le redéploiement du Space
       - name: Push README to Hugging Face Hub
-        uses: huggingface/upload-to-hub@v0.4
+        uses: huggingface/hub-upload@v0.4
         with:
           repo_id: "emmanuelohug/api-voiture-autonome"
           repo_type: "space"
           token: ${{ secrets.HF_TOKEN }}
           commit_message: "Update Space to use latest Docker image"
           # Spécifie le fichier à uploader et son nom dans le dépôt distant
-          files_to_upload: "README.md"
+          path_on_disk: README.md
+          path_in_repo: README.md
