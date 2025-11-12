@@ -93,31 +93,22 @@ jobs:
         cache-to: type=gha,mode=max,scope=frontend-build-cache
 
   #############################################################
-  # Job 3: Déployer l'API et le Frontend sur Hugging Face
+  # Job 3: Déployer l'API sur Hugging Face
   #############################################################
-  deploy:
-    name: Déployer sur Hugging Face Spaces
+  deploy_api:
+    name: Déployer l'API sur Hugging Face
     # Ce job ne se lancera que si le job 'build' réussit
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-    - name: Déployer l'API sur Hugging Face
+    - name: Déployer l'API en redémarrant le Space
       uses: huggingface/hub-action@v0
       with:
         repo_id: "emmanuelohug/api-voiture-autonome"
         repo_type: space
         token: ${{ secrets.HF_TOKEN }}
         commit_message: "Deploy API: Update Docker image"
-        # Cette action va simplement créer un commit vide pour forcer le redémarrage du Space
-        # Le Space est déjà configuré pour utiliser l'image Docker Hub avec le tag 'latest'
-        allow_empty_commit: true
-
-    - name: Déployer le Frontend sur Hugging Face
-      uses: huggingface/hub-action@v0
-      with:
-        repo_id: "emmanuelohug/frontend-voiture-autonome" # Assurez-vous que ce nom de Space est correct
-        repo_type: space
-        token: ${{ secrets.HF_TOKEN }}
-        commit_message: "Deploy Frontend: Update Docker image"
+        # Cette action va simplement créer un commit vide pour forcer le redémarrage du Space.
+        # Le Space est déjà configuré pour utiliser l'image Docker Hub avec le tag 'latest'.
         allow_empty_commit: true
