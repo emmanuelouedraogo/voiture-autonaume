@@ -28,5 +28,3 @@ impenv/
 build/
 dist/
 *.egg-info/
-# FICHIER TEXTE
-*.txt

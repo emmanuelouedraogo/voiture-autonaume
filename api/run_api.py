@@ -118,7 +118,8 @@ def predict():
         # Préparer la réponse finale
         response_data = {
             "statistics": class_stats,
-            "segmented_image": f"data:image/png;base64,{img_str}"
+            "segmented_image": f"data:image/png;base64,{img_str}",
+            "colors": config.get('group_colors', []) # Ajout des couleurs pour la légende
         }
 
         return jsonify(response_data)
