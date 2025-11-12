@@ -1,4 +1,13 @@
 ---title: Analyseur de Scène Routière
+---
+title: API de Segmentation de Voiture Autonome
+emoji: 🚗
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 8000
+pinned: false
+---
 # 🚗 Analyseur de Scène Routière
 
 Ce projet fournit une solution complète pour la segmentation sémantique d'images de scènes de conduite. Il inclut :
