@@ -77,7 +77,7 @@ jobs:
 
       # Étape 2: Uploader le README.md pour déclencher le redéploiement du Space
       - name: Push README to Hugging Face Hub
-        uses: huggingface/hub-upload@v0.4
+        uses: huggingface/hub-upload@main
         with:
           repo_id: "emmanuelohug/api-voiture-autonome"
           repo_type: "space"
