@@ -59,3 +59,31 @@ jobs:
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/voiture-autonaume-frontend:latest
         cache-from: type=gha,scope=frontend-build-cache
         cache-to: type=gha,mode=max,scope=frontend-build-cache
+
+  deploy_to_hf:
+    # Ce job ne s'exécute que si le job 'build_and_push' a réussi
+    needs: build_and_push
+    runs-on: ubuntu-latest
+
+    steps:
+      # Étape 1: Pousser un fichier README.md pour configurer le Space Hugging Face
+      # Cette action va créer un commit dans le dépôt du Space pour le mettre à jour.
+      - name: Push README to Hugging Face Space
+        uses: huggingface/hub-action@v1
+        with:
+          # L'identifiant de votre Space
+          repo_id: "emmanuelohug/api-voiture-autonome"
+          repo_type: "space"
+          # Le jeton d'accès que vous avez ajouté aux secrets
+          token: ${{ secrets.HF_TOKEN }}
+          # Le message du commit qui apparaîtra dans l'historique du Space
+          commit_message: "Update Space to use latest Docker image"
+          # Le contenu du fichier README.md à créer dans le Space
+          # Ce fichier configure le Space pour qu'il utilise votre image Docker depuis Docker Hub.
+          files: |
+            README.md: |
+              ---
+              title: API de Segmentation de Scène Routière
+              sdk: docker
+              app_port: 5000
+              ---
