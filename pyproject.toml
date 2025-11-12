@@ -10,7 +10,7 @@ authors = [
 ]
 description = "Un package pour la segmentation sémantique d'images de conduite."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",

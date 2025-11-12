@@ -1,6 +1,6 @@
 # --- Étape 1: Builder ---
 # Utilise une image Python complète pour construire les dépendances
-FROM python:3.10-slim as builder
+FROM python:3.12-slim as builder
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ RUN pip wheel --no-cache-dir --wheel-dir=/app/wheels "streamlit" "requests" "Pil
 
 # --- Étape 2: Final ---
 # Utilise une image slim pour une taille finale réduite
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 
