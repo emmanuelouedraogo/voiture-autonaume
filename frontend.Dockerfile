@@ -12,7 +12,7 @@ COPY pyproject.toml .
 
 # Installer les dépendances dans un répertoire local (wheelhouse)
 # On installe les dépendances de base + streamlit, requests, pillow
-RUN pip wheel --no-cache-dir --wheel-dir=/app/wheels . streamlit requests Pillow
+RUN pip wheel --no-cache-dir --wheel-dir=/app/wheels . "streamlit" "requests" "Pillow"
 
 # --- Étape 2: Final ---
 # Utilise une image slim pour une taille finale réduite
