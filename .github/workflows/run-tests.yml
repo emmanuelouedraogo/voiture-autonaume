@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         # Tester sur plusieurs versions de Python pour assurer la compatibilité
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.12"]
 
     steps:
     # Étape 1: Récupérer le code source de votre dépôt

@@ -17,8 +17,8 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # Étape 2: Configurer Python 3.10 (bonne pratique pour les actions qui pourraient en avoir besoin)
-    - name: Set up Python 3.10
+    # Étape 2: Configurer Python 3.12 (bonne pratique pour les actions qui pourraient en avoir besoin)
+    - name: Set up Python 3.12
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
