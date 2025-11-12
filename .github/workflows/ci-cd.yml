@@ -103,11 +103,11 @@ jobs:
 
     steps:
     - name: Déployer l'API en redémarrant le Space
-      uses: huggingface/hub-action@v0
+      uses: huggingface/push-to-hub@v0
       with:
+        hf_token: ${{ secrets.HF_TOKEN }}
         repo_id: "emmanuelohug/api-voiture-autonome"
         repo_type: space
-        token: ${{ secrets.HF_TOKEN }}
         commit_message: "Deploy API: Update Docker image"
         # Cette action va simplement créer un commit vide pour forcer le redémarrage du Space.
         # Le Space est déjà configuré pour utiliser l'image Docker Hub avec le tag 'latest'.
