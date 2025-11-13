@@ -100,34 +100,44 @@ jobs:
     # Ce job ne se lancera que si le job 'build' réussit
     needs: build
     runs-on: ubuntu-latest
-
+    env:
+      # Définit le nom du dépôt cible pour plus de clarté
+      HF_SPACE_REPO: emmanuelohug/api-voiture-autonome
+      
     steps:
-    - name: 1. Cloner le dépôt du Space Hugging Face
+    - name: 1. Installer Git LFS
       run: |
-        # Clone le dépôt du Space dans un dossier nommé 'hf-space'
-        git clone https://huggingface.co/spaces/emmanuelohug/api-voiture-autonome hf-space
+        sudo apt-get update
+        sudo apt-get install git-lfs
 
-    - name: 2. Créer le fichier de configuration README.md
-      run: |
-        # Crée le fichier README.md qui configure le Space pour utiliser l'image Docker de Docker Hub
-        # et le place dans le dossier du Space cloné.
-        echo "---" > hf-space/README.md
-        echo "title: API de Segmentation de Scène Routière" >> hf-space/README.md
-        echo "sdk: docker" >> hf-space/README.md
-        echo "app_port: 8000" >> hf-space/README.md
-        echo "app_file: ${{ secrets.DOCKERHUB_USERNAME }}/voiture-autonaume-api:latest" >> hf-space/README.md
-        echo "---" >> hf-space/README.md
-
-    - name: 3. Pousser les changements vers le Hub Hugging Face
+    - name: 2. Cloner le dépôt du Space Hugging Face
       env:
-        # Le jeton d'accès est utilisé pour s'authentifier
         HF_TOKEN: ${{ secrets.HF_TOKEN }}
       run: |
-        cd hf-space
+        # Configure Git pour utiliser le jeton d'accès pour toutes les opérations HTTPS
+        git config --global credential.helper "store --file ~/.git-credentials"
+        echo "https://user:${HF_TOKEN}@huggingface.co" > ~/.git-credentials
+        
+        # Clone le dépôt du Space
+        git clone "https://huggingface.co/spaces/${HF_SPACE_REPO}"
+        
+    - name: 3. Mettre à jour la configuration et pousser les changements
+      run: |
+        # Se déplace dans le dossier du dépôt cloné
+        cd $(basename ${HF_SPACE_REPO})
+        
+        # Crée le fichier de configuration
+        echo "---" > README.md
+        echo "title: API de Segmentation de Scène Routière" >> README.md
+        echo "sdk: docker" >> README.md
+        echo "app_port: 8000" >> README.md
+        echo "app_file: ${{ secrets.DOCKERHUB_USERNAME }}/voiture-autonaume-api:latest" >> README.md
+        echo "---" >> README.md
+        
+        # Configure l'identité Git pour le commit
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        # Modifie l'URL du remote pour inclure le jeton d'authentification
-        git remote set-url origin "https://user:${HF_TOKEN}@huggingface.co/spaces/emmanuelohug/api-voiture-autonome"
+        
         git add README.md
         # Crée un commit et le pousse uniquement s'il y a des changements
         if ! git diff --staged --quiet; then
