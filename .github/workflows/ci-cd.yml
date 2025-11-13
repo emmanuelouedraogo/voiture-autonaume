@@ -105,35 +105,47 @@ jobs:
       HF_SPACE_REPO: emmanuelohug/api-voiture-autonome
       
     steps:
-    - name: 1. Installer Git LFS
+    - name: 1. Récupérer le code source du projet
+      uses: actions/checkout@v4
+      with:
+        # Nécessaire pour que git-lfs fonctionne correctement
+        fetch-depth: 0
+
+    - name: 2. Installer Git LFS
       run: |
         sudo apt-get update
         sudo apt-get install git-lfs
 
-    - name: 2. Cloner le dépôt du Space Hugging Face
+    - name: 3. Cloner le dépôt du Space Hugging Face
       env:
         HF_TOKEN: ${{ secrets.HF_TOKEN }}
       run: |
         # Configure Git pour utiliser le jeton d'accès pour toutes les opérations HTTPS
         git config --global credential.helper "store --file ~/.git-credentials"
         echo "https://user:${HF_TOKEN}@huggingface.co" > ~/.git-credentials
-        
         # Clone le dépôt du Space
         git clone "https://huggingface.co/spaces/${HF_SPACE_REPO}"
         
-    - name: 3. Mettre à jour la configuration et pousser les changements
+    - name: 4. Mettre à jour la configuration et pousser les changements
       run: |
-        # Se déplace dans le dossier du dépôt cloné
-        cd $(basename ${HF_SPACE_REPO})
+        # Définit le chemin du README.md dans le dépôt du Space cloné
+        HF_README_PATH="${HF_SPACE_REPO##*/}/README.md"
         
-        # Crée le fichier de configuration
-        echo "---" > README.md
-        echo "title: API de Segmentation de Scène Routière" >> README.md
-        echo "sdk: docker" >> README.md
-        echo "app_port: 8000" >> README.md
-        echo "app_file: ${{ secrets.DOCKERHUB_USERNAME }}/voiture-autonaume-api:latest" >> README.md
-        echo "---" >> README.md
+        # Crée le nouveau README en combinant les métadonnées et le contenu local
+        {
+          echo "---"
+          echo "title: API de Segmentation de Scène Routière"
+          echo "sdk: docker"
+          echo "app_port: 8000"
+          echo "app_file: ${{ secrets.DOCKERHUB_USERNAME }}/voiture-autonaume-api:latest"
+          echo "---"
+          echo "" # Ligne vide pour séparer les métadonnées du contenu
+          cat README.md # Ajoute le contenu du README.md local
+        } > "$HF_README_PATH"
         
+        # Se déplace dans le dossier du dépôt cloné pour les commandes git
+        cd "${HF_SPACE_REPO##*/}"
+
         # Configure l'identité Git pour le commit
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
