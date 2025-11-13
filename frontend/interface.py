@@ -18,9 +18,9 @@ st.set_page_config(
 # définie dans docker-compose.yml. Cela garantit l'utilisation de 'http://api:8000/predict'.
 # La valeur par défaut est pour le développement local sans Docker.
 
-# Récupère l'URL de base de l'API depuis les secrets (variable d'environnement)
+# Récupère l'URL de base de l'API depuis les secrets de Streamlit Cloud (variable d'environnement)
 # ou utilise une valeur par défaut pour le développement local.
-API_BASE_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
+API_BASE_URL = os.getenv("API_URL", "http://127.0.0.1:8000") # Utilisez os.getenv pour lire les variables d'environnement
 
 # Construit l'URL complète de l'endpoint de prédiction.
 PREDICT_URL = f"{API_BASE_URL.rstrip('/')}/predict"
