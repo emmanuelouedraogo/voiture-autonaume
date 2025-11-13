@@ -35,8 +35,15 @@ RUN pip install --no-cache /wheels/*
 COPY emmanuel_segmentation_package/ ./emmanuel_segmentation_package/
 COPY api/run_api.py .
 
-# Copier les modèles et les configurations directement dans l'image.
-COPY models/ /app/models/
+# Créer le dossier pour les modèles et télécharger les fichiers depuis les releases GitHub.
+# Cela garantit que les modèles sont inclus dans l'image sans être stockés dans le dépôt Git.
+RUN mkdir -p /app/models && \
+    curl -L -o /app/models/final_optimized_model.keras https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/final_optimized_model.keras && \
+    curl -L -o /app/models/class_mapping.json https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/class_mapping.json && \
+    curl -L -o /app/models/class_weights.json https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/class_weights.json
+
+# Définir les variables d'environnement pour que l'API trouve les modèles.
+ENV MODEL_PATH=/app/models/final_optimized_model.keras CONFIG_PATH=/app/models/class_mapping.json CLASS_WEIGHTS_PATH=/app/models/class_weights.json
 
 # Changer le propriétaire des fichiers et définir l'utilisateur non-root.
 RUN chown -R appuser:appuser /app
