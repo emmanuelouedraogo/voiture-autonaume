@@ -82,16 +82,6 @@ jobs:
         cache-from: type=gha,scope=api-build-cache
         cache-to: type=gha,mode=max,scope=api-build-cache
 
-    - name: Build and push Frontend image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ./frontend.Dockerfile
-        push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/voiture-autonaume-frontend:latest
-        cache-from: type=gha,scope=frontend-build-cache
-        cache-to: type=gha,mode=max,scope=frontend-build-cache
-
   #############################################################
   # Job 3: Déployer l'API sur Hugging Face
   #############################################################

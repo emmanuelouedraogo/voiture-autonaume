@@ -24,18 +24,3 @@ services:
       retries: 3
       # Le start_period donne au modèle le temps de se charger avant que le healthcheck ne soit considéré comme échoué.
       start_period: 120s
-
-  frontend:
-    # Utilise l'image pré-construite depuis Docker Hub
-    image: emmanuelouedraogo/voiture-autonome-frontend:latest
-    container_name: segmentation_frontend
-    # Le port 8501 est exposé par l'image Docker du frontend
-    ports:
-      - "8501:8501"
-    environment:
-      # L'URL de l'API doit pointer vers le service 'api' sur le port 8000 et l'endpoint '/predict'
-      - API_URL=http://api:8000/predict
-    depends_on:
-      api:
-        # Le frontend ne démarrera que lorsque l'API sera saine (healthcheck réussi).
-        condition: service_healthy

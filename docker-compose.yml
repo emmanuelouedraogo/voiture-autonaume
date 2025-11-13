@@ -22,21 +22,3 @@ services:
     #   timeout: 10s
     #   retries: 3
     #   start_period: 120s
-
-  frontend:
-    build:
-      context: .
-      # Spécifie le nom du Dockerfile pour le frontend
-      dockerfile: frontend.Dockerfile
-    container_name: segmentation_frontend
-    ports:
-      - "8501:8501"
-    environment:
-      # L'URL que le frontend utilisera pour contacter l'API.
-      # 'http://api:8000' est l'adresse du service 'api' à l'intérieur du réseau Docker.
-      - API_URL=http://api:8000/predict
-    # depends_on:
-    #   api:
-    #     # Le frontend ne démarrera que lorsque l'API sera saine (healthcheck réussi).
-    #     # Cela évite que le frontend démarre avant que le modèle de l'API ne soit chargé.
-    #     condition: service_healthy
