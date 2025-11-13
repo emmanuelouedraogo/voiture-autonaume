@@ -127,33 +127,31 @@ jobs:
         git clone "https://huggingface.co/spaces/${HF_SPACE_REPO}"
         
     - name: 4. Mettre à jour la configuration et pousser les changements
+      env:
+        DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/voiture-autonaume-api:latest
       run: |
-        # Définit le chemin du README.md dans le dépôt du Space cloné
-        HF_README_PATH="${HF_SPACE_REPO##*/}/README.md"
+        # Définit le chemin du dépôt cloné
+        HF_REPO_DIR="${HF_SPACE_REPO##*/}"
         
-        # Crée le nouveau README en combinant les métadonnées et le contenu local
-        {
-          echo "---"
-          echo "title: API de Segmentation de Scène Routière"
-          echo "sdk: docker"
-          echo "app_port: 8000"
-          echo "app_file: ${{ secrets.DOCKERHUB_USERNAME }}/voiture-autonaume-api:latest"
-          echo "---"
-          echo "" # Ligne vide pour séparer les métadonnées du contenu
-          cat README.md # Ajoute le contenu du README.md local
-        } > "$HF_README_PATH"
+        # Copie le fichier de configuration README pour Hugging Face
+        cp README.hf.md "${HF_REPO_DIR}/README.md"
+
+        # Crée un Dockerfile dans le dépôt du Space qui pointe vers l'image sur Docker Hub
+        echo "FROM ${DOCKER_IMAGE}" > "${HF_REPO_DIR}/Dockerfile"
         
         # Se déplace dans le dossier du dépôt cloné pour les commandes git
-        cd "${HF_SPACE_REPO##*/}"
+        cd "$HF_REPO_DIR"
 
         # Configure l'identité Git pour le commit
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
         
-        git add README.md
+        # Ajoute les fichiers modifiés ou créés
+        git add README.md Dockerfile
+
         # Crée un commit et le pousse uniquement s'il y a des changements
         if ! git diff --staged --quiet; then
-          git commit -m "Deploy: Mise à jour de la configuration Docker"
+          git commit -m "Deploy: Mise à jour de la configuration du Space"
           git push
         else
           echo "Aucun changement de configuration à déployer."
