@@ -1,53 +1,44 @@
 # --- Étape 1: Builder ---
-# Utilise une image Python complète pour construire les dépendances
-FROM python:3.12-slim AS builder
+# Utilise une image Python complète pour construire les dépendances de manière robuste.
+FROM python:3.12-slim as builder
 
-# Définir le répertoire de travail
 WORKDIR /app
 
-# Mettre à jour pip
+# Mettre à jour pip pour s'assurer d'avoir la dernière version.
 RUN python -m pip install --upgrade pip
 
-# Copier uniquement les fichiers de dépendances pour profiter de la mise en cache Docker
+# Copier uniquement le fichier de dépendances pour profiter de la mise en cache de Docker.
+# L'installation ne sera relancée que si pyproject.toml change.
 COPY pyproject.toml ./
-COPY api/requirements.txt ./api/requirements.txt
 
-# Installer les dépendances dans un répertoire local (wheelhouse)
-# On installe gunicorn en plus des dépendances du projet
-RUN pip wheel --no-cache-dir --wheel-dir=/app/wheels -r api/requirements.txt . "gunicorn"
+# Installer les dépendances de production dans un répertoire local (wheelhouse).
+# Cela pré-compile les paquets, ce qui accélère l'étape finale.
+# On installe les dépendances du groupe [main] défini dans pyproject.toml.
+RUN pip wheel --no-cache-dir --wheel-dir=/app/wheels -e ".[main]"
 
 # --- Étape 2: Final ---
-# Utilise une image slim pour une taille finale réduite
+# Utilise une image "slim" pour une taille finale réduite.
 FROM python:3.12-slim
 
 WORKDIR /app
 
-# Créer un utilisateur non-root pour des raisons de sécurité
+# Créer un utilisateur non-root pour des raisons de sécurité.
 RUN useradd --create-home --shell /bin/bash appuser
 
-# Installer les dépendances système minimales nécessaires à l'exécution
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1 \
-    libglib2.0-0 \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Copier les dépendances pré-compilées de l'étape de build
+# Copier les dépendances pré-compilées de l'étape de build.
 COPY --from=builder /app/wheels /wheels
-RUN pip install --no-cache-dir --no-index --find-links=/wheels /wheels/*
 
-# Copier le code de l'application
-COPY . .
+# Installer les dépendances à partir des wheels. C'est plus rapide et ne nécessite pas de compilation.
+RUN pip install --no-cache /wheels/*
 
-# Changer le propriétaire des fichiers pour l'utilisateur non-root
+# Copier le code de l'application (le package et le fichier main.py).
+COPY emmanuel_segmentation_package/ ./emmanuel_segmentation_package/
+COPY main.py .
+
+# Changer le propriétaire des fichiers et définir l'utilisateur non-root.
 RUN chown -R appuser:appuser /app
-
-# Définir l'utilisateur non-root
 USER appuser
 
-# Exposer le port
-EXPOSE 8000
-
-# Commande pour lancer l'API avec Gunicorn quand le conteneur démarre
-# Utilise Gunicorn pour lancer l'application en production.
-# 'api.run_api:app' pointe vers l'objet 'app' de Flask dans le fichier 'api/run_api.py'.
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "api.run_api:app"]
+# Commande pour lancer l'application API avec uvicorn.
+# L'utilisateur 'appuser' a accès à uvicorn car il a été installé globalement.
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

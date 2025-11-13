@@ -14,8 +14,10 @@ st.set_page_config(
 )
 
 # --- Configuration de l'API ---
-# Utilise une variable d'environnement pour l'URL de l'API, avec une valeur par défaut pour le dev local.
-API_URL = os.getenv("API_URL", "http://127.0.0.1:8000/predict")
+# Lit l'URL de l'API depuis la configuration Streamlit, qui est alimentée par la variable d'environnement
+# définie dans docker-compose.yml. Cela garantit l'utilisation de 'http://api:8000/predict'.
+# La valeur par défaut est pour le développement local sans Docker.
+API_URL = st.config.get_option("client.apiUrl", "http://127.0.0.1:8000/predict")
 
 
 def call_segmentation_api(image_bytes, filename):

@@ -1,0 +1,12 @@
+# .streamlit/config.toml
+
+# Cette section configure le serveur Streamlit.
+[server]
+# Désactive la vérification CORS, ce qui peut être utile dans un environnement conteneurisé.
+enableCORS = false
+
+# Cette section personnalisée permet de passer des variables d'environnement à l'application.
+[client]
+# Indique à Streamlit de récupérer la valeur de la variable d'environnement 'API_URL'
+# et de la rendre disponible dans l'application.
+apiUrl = "env:API_URL"
