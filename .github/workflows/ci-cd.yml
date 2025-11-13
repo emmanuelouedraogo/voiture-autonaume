@@ -123,8 +123,15 @@ jobs:
         # Définit le chemin du dépôt cloné
         HF_REPO_DIR="${HF_SPACE_REPO##*/}"
         
-        # Copie le fichier de configuration README pour Hugging Face
-        cp README.hf.md "${HF_REPO_DIR}/README.md"
+        # Crée le fichier README.md pour la configuration du Space Hugging Face.
+        # C'est ici qu'on spécifie le port interne de l'application (8000).
+        cat <<EOF > "${HF_REPO_DIR}/README.md"
+        ---
+        title: API Voiture Autonome
+        sdk: docker
+        app_port: 8000
+        ---
+        EOF
 
         # Crée un Dockerfile dans le dépôt du Space qui pointe vers l'image sur Docker Hub
         # On surcharge le CMD pour utiliser Gunicorn, le serveur adapté pour Flask.
