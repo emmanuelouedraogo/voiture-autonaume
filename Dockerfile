@@ -14,7 +14,7 @@ COPY pyproject.toml ./
 # Installer les dépendances de production dans un répertoire local (wheelhouse).
 # Cela pré-compile les paquets, ce qui accélère l'étape finale.
 # On installe les dépendances du groupe [main] défini dans pyproject.toml.
-RUN pip wheel --no-cache-dir --wheel-dir=/app/wheels -e ".[main]"
+RUN pip wheel --no-cache-dir --wheel-dir=/app/wheels -e .
 
 # --- Étape 2: Final ---
 # Utilise une image "slim" pour une taille finale réduite.
