@@ -129,7 +129,7 @@ jobs:
     - name: 4. Mettre à jour la configuration et pousser les changements
       env:
         DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/voiture-autonaume-api:latest
-      run: |
+      run: 
         # Définit le chemin du dépôt cloné
         HF_REPO_DIR="${HF_SPACE_REPO##*/}"
         
@@ -141,7 +141,7 @@ jobs:
         # et non sur un sous-chemin comme /app, ce qui résout les erreurs 404.
         cat <<EOF > "${HF_REPO_DIR}/Dockerfile"
         FROM ${DOCKER_IMAGE}
-        CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860", "--root-path", "/"]
+        CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--root-path", "/"]
         EOF
         
         # Se déplace dans le dossier du dépôt cloné pour les commandes git
