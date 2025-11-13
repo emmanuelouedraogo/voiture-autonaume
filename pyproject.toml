@@ -24,7 +24,8 @@ dependencies = [
     "python-dotenv",
     "pandas",
     "requests",
-    "flask"
+    "flask",
+    "gunicorn" # Serveur WSGI pour Flask en production
 ]
 
 [project.optional-dependencies]
