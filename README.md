@@ -1,14 +1,11 @@
 ---
-title: Analyseur de Scène Routière
----
 title: API de Segmentation de Voiture Autonome
 emoji: 🚗
 colorFrom: blue
 colorTo: green
 sdk: docker
 app_port: 8000
-pinned: false
--------------
+---
 
 🚗 Analyseur de Scène Routière
 
