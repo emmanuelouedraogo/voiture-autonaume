@@ -1,4 +1,5 @@
----title: Analyseur de Scène Routière
+---
+title: Analyseur de Scène Routière
 ---
 title: API de Segmentation de Voiture Autonome
 emoji: 🚗
@@ -7,10 +8,12 @@ colorTo: green
 sdk: docker
 app_port: 8000
 pinned: false
---- 
-# 🚗 Analyseur de Scène Routière
+-------------
+
+🚗 Analyseur de Scène Routière
 
 Ce projet fournit une solution complète pour la segmentation sémantique d'images de scènes de conduite. Il inclut :
+
 - Un **package Python** (`emmanuel_segmentation_package`) contenant la logique de segmentation.
 - Une **API Flask** pour servir les prédictions via HTTP.
 - Une **interface web Streamlit** pour une utilisation interactive.
@@ -113,9 +116,9 @@ Pour utiliser votre propre modèle de segmentation, il suffit de modifier les va
 1. Placez votre fichier de modèle (ex: `best_model_final.keras`) dans le dossier `models/`.
 2. Assurez-vous d'avoir un fichier de mapping de classes (ex: `class_mapping.json`) dans le dossier `models/`. Ce fichier doit mapper les index de classe (en tant que chaînes de caractères) à des couleurs RGB.
    Voici un exemple de format valide pour `class_mapping.json`:
-1. Ouvrez le fichier `docker-compose.yml`.
-2. Localisez la section `environment` du service `api`.
-3. Modifiez les URLs pour pointer vers vos propres fichiers de modèle et de mapping.
+3. Ouvrez le fichier `docker-compose.yml`.
+4. Localisez la section `environment` du service `api`.
+5. Modifiez les URLs pour pointer vers vos propres fichiers de modèle et de mapping.
 
    ```json
    {
@@ -124,8 +127,7 @@ Pour utiliser votre propre modèle de segmentation, il suffit de modifier les va
      "2": [70, 70, 70]
    }
    ```
-
-3. Ouvrez le fichier `docker-compose.yml` et modifiez les variables d'environnement du service `api` pour qu'elles correspondent à vos noms de fichiers.
+6. Ouvrez le fichier `docker-compose.yml` et modifiez les variables d'environnement du service `api` pour qu'elles correspondent à vos noms de fichiers.
 
    ```yaml
    environment:
@@ -134,9 +136,8 @@ Pour utiliser votre propre modèle de segmentation, il suffit de modifier les va
       - MODEL_URL=<URL_VERS_VOTRE_MODELE.keras>
       - CLASS_MAPPING_URL=<URL_VERS_VOTRE_MAPPING.json>
    ```
-
-4. Relancez l'application avec `docker-compose up --build`.
-4. Relancez l'application avec `docker-compose up --build`. Les fichiers seront automatiquement téléchargés au premier démarrage.
+7. Relancez l'application avec `docker-compose up --build`.
+8. Relancez l'application avec `docker-compose up --build`. Les fichiers seront automatiquement téléchargés au premier démarrage.
 
 ## 🌐 Déploiement
 
