@@ -114,7 +114,7 @@ jobs:
         echo "---" > hf-space/README.md
         echo "title: API de Segmentation de Scène Routière" >> hf-space/README.md
         echo "sdk: docker" >> hf-space/README.md
-        echo "app_port: 5000" >> hf-space/README.md
+        echo "app_port: 8000" >> hf-space/README.md
         echo "app_file: ${{ secrets.DOCKERHUB_USERNAME }}/voiture-autonaume-api:latest" >> hf-space/README.md
         echo "---" >> hf-space/README.md
 

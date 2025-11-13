@@ -47,4 +47,6 @@ USER appuser
 EXPOSE 8000
 
 # Commande pour lancer l'API avec Gunicorn quand le conteneur démarre
-CMD ["python", "api/run_api.py"]
+# Utilise Gunicorn pour lancer l'application en production.
+# 'api.run_api:app' pointe vers l'objet 'app' de Flask dans le fichier 'api/run_api.py'.
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "api.run_api:app"]
