@@ -4,9 +4,8 @@ import os
 import sys
 
 # --- Configuration ---
-API_URL = "http://localhost:8000/segment/"
+API_URL = "http://localhost:8000/predict"  # CORRECTION: L'endpoint est /predict
 IMAGE_PATH = "test_images/sample_image.jpg"  # Créez un dossier test_images/ avec une image dedans
-API_KEY_PATH = "internal_api_key.txt"
 
 
 def test_single_request():
@@ -18,24 +17,15 @@ def test_single_request():
         )
         sys.exit(1)
 
-    if not os.path.exists(API_KEY_PATH):
-        print(f"Erreur: Le fichier de clé API '{API_KEY_PATH}' n'a pas été trouvé.")
-        sys.exit(1)
-
-    with open(API_KEY_PATH, "r") as f:
-        api_key = f.read().strip()
-
-    headers = {"X-API-Key": api_key}
     print(f"Envoi d'une requête à {API_URL}...")
 
     with open(IMAGE_PATH, "rb") as image_file:
-        files = {"file": (os.path.basename(IMAGE_PATH), image_file, "image/jpeg")}
+        files = {"image": (os.path.basename(IMAGE_PATH), image_file, "image/jpeg")} # CORRECTION: Le nom du champ est 'image'
 
         try:
             start_time = time.time()
-            response = requests.post(
-                API_URL, headers=headers, files=files, timeout=60
-            )  # Ajout d'un timeout
+            # L'authentification par clé API n'est pas utilisée, on la retire.
+            response = requests.post(API_URL, files=files, timeout=60)
             end_time = time.time()
 
             # Vérifier si la requête a réussi
