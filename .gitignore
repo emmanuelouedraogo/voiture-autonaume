@@ -5,8 +5,8 @@ __pycache__/
 *.pyd
 
 # Répertoires de cache du modèle et des sorties
-/models/
 /outputs/
+/models/
 
 # Environnements virtuels
 *env/

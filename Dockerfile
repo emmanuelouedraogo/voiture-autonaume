@@ -10,10 +10,11 @@ RUN python -m pip install --upgrade pip
 
 # Copier uniquement les fichiers de dépendances pour profiter de la mise en cache Docker
 COPY pyproject.toml ./
+COPY api/requirements.txt ./api/requirements.txt
 
 # Installer les dépendances dans un répertoire local (wheelhouse)
 # On installe gunicorn en plus des dépendances du projet
-RUN pip wheel --no-cache-dir --wheel-dir=/app/wheels . "gunicorn"
+RUN pip wheel --no-cache-dir --wheel-dir=/app/wheels -r api/requirements.txt . "gunicorn"
 
 # --- Étape 2: Final ---
 # Utilise une image slim pour une taille finale réduite
