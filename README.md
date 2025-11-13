@@ -148,14 +148,15 @@ Ce projet est configuré pour un déploiement continu sur **Hugging Face Spaces*
 ### Étapes de déploiement sur Hugging Face
 
 1. **Créez un nouveau "Space"** sur Hugging Face.
-2. Choisissez **"Docker"** comme SDK et "Public" comme visibilité.
-3. Une fois le Space créé, allez dans l'onglet **"Settings"**.
-4. Dans la section "Docker template", cochez **"Use a Docker image from the Hub"**.
-5. Entrez le nom de l'image de l'API : `emmanuelouedraogo/voiture-autonome-api:latest`.
-6. Assurez-vous que le "Application port" est bien `8000`.
-7. Ajoutez les secrets nécessaires (ex: `INTERNAL_API_KEY`) dans la section "Repository secrets".
-8. Sauvegardez les changements.
+2. Choisissez **"Docker"** comme SDK.
+3. Une fois le Space créé, allez dans l'onglet **"Settings"** -> **"Repository secrets"**.
+4. **Ajoutez vos identifiants Docker Hub** pour éviter les problèmes de rate-limiting. C'est une étape cruciale.
+   - `DOCKER_USERNAME` : Votre nom d'utilisateur Docker Hub.
+   - `DOCKER_TOKEN` : Un jeton d'accès Docker Hub (avec permissions de lecture).
+5. Le pipeline CI/CD de ce projet poussera automatiquement un fichier `README.md` qui configure le Space pour utiliser l'image Docker de l'API. Vous n'avez rien à configurer manuellement dans l'interface.
+
+> Le déploiement est entièrement géré par le fichier `.github/workflows/ci-cd.yml`.
 
 Hugging Face déploiera automatiquement votre conteneur. L'URL publique de votre API sera disponible sur la page principale de votre Space.
 
-> **Note** : Le frontend Streamlit peut également être déployé de la même manière en créant un second Space et en utilisant l'image `emmanuelouedraogo/voiture-autonome-frontend:latest`. N'oubliez pas de configurer la variable d'environnement `API_URL` dans les secrets du Space frontend pour qu'elle pointe vers l'URL de votre API déployée.
+> **Note** : Le frontend Streamlit peut également être déployé de la même manière en créant un second Space et en utilisant l'image `emmanuelouedraogo/voiture-autonome-frontend:latest`. N'oubliez pas de configurer la variable d'environnement `API_URL` dans les secrets du Space frontend pour qu'elle pointe vers l'URL de votre API déployée. 
