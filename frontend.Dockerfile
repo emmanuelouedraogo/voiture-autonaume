@@ -27,8 +27,9 @@ RUN useradd --create-home --shell /bin/bash appuser
 COPY --from=builder /app/wheels /wheels
 RUN pip install --no-cache /wheels/*
 
-# Copier le code de l'application
-COPY . .
+# Copier les fichiers nécessaires de manière explicite
+COPY frontend/interface.py .
+COPY .streamlit/config.toml ./.streamlit/config.toml
 
 # Changer le propriétaire et définir l'utilisateur
 RUN chown -R appuser:appuser /app
@@ -38,4 +39,4 @@ USER appuser
 EXPOSE 8501
 
 # Commande pour lancer l'application Streamlit
-CMD ["streamlit", "run", "frontend/interface.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "interface.py", "--server.port=8501", "--server.address=0.0.0.0"]

@@ -1,6 +1,6 @@
 ---
 title: Interface de Segmentation de Scène Routière
 emoji: 🖼️
-sdk: streamlit
-app_file: app/app.py
+sdk: docker
+app_port: 8501
 ---
