@@ -137,7 +137,12 @@ jobs:
         cp README.hf.md "${HF_REPO_DIR}/README.md"
 
         # Crée un Dockerfile dans le dépôt du Space qui pointe vers l'image sur Docker Hub
-        echo "FROM ${DOCKER_IMAGE}" > "${HF_REPO_DIR}/Dockerfile"
+        # On surcharge le CMD pour s'assurer que l'API est servie à la racine (root_path)
+        # et non sur un sous-chemin comme /app, ce qui résout les erreurs 404.
+        cat <<EOF > "${HF_REPO_DIR}/Dockerfile"
+        FROM ${DOCKER_IMAGE}
+        CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860", "--root-path", "/"]
+        EOF
         
         # Se déplace dans le dossier du dépôt cloné pour les commandes git
         cd "$HF_REPO_DIR"
