@@ -35,6 +35,9 @@ RUN pip install --no-cache /wheels/*
 COPY emmanuel_segmentation_package/ ./emmanuel_segmentation_package/
 COPY api/run_api.py .
 
+# Copier les modèles et les configurations directement dans l'image.
+COPY models/ /app/models/
+
 # Changer le propriétaire des fichiers et définir l'utilisateur non-root.
 RUN chown -R appuser:appuser /app
 USER appuser

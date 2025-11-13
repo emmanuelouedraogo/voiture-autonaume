@@ -18,10 +18,12 @@ st.set_page_config(
 # définie dans docker-compose.yml. Cela garantit l'utilisation de 'http://api:8000/predict'.
 # La valeur par défaut est pour le développement local sans Docker.
 
-# Récupère l'URL de l'API depuis les secrets de Streamlit Cloud (variable d'environnement)
+# Récupère l'URL de base de l'API depuis les secrets (variable d'environnement)
 # ou utilise une valeur par défaut pour le développement local.
-API_URL = os.getenv("API_URL", "http://127.0.0.1:8000/predict")
+API_BASE_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
 
+# Construit l'URL complète de l'endpoint de prédiction.
+PREDICT_URL = f"{API_BASE_URL.rstrip('/')}/predict"
 # ... (le reste de votre code)
 
 def call_segmentation_api(image_bytes, filename):
@@ -29,7 +31,7 @@ def call_segmentation_api(image_bytes, filename):
     with st.spinner("🧠 Analyse de l'image en cours... Le modèle réfléchit !"):
         try:
             files = {'image': (filename, image_bytes, 'image/jpeg')}
-            response = requests.post(API_URL, files=files, timeout=180)
+            response = requests.post(PREDICT_URL, files=files, timeout=180)
             response.raise_for_status()  # Lève une exception pour les codes d'erreur HTTP (4xx ou 5xx)
 
             # Vérifier si la réponse est bien du JSON
