@@ -33,7 +33,7 @@ RUN pip install --no-cache /wheels/*
 
 # Copier le code de l'application (le package et le fichier main.py).
 COPY emmanuel_segmentation_package/ ./emmanuel_segmentation_package/
-COPY api/main.py .
+COPY api/run_api.py .
 
 # Changer le propriétaire des fichiers et définir l'utilisateur non-root.
 RUN chown -R appuser:appuser /app
