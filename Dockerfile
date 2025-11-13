@@ -39,6 +39,6 @@ COPY api/run_api.py .
 RUN chown -R appuser:appuser /app
 USER appuser
 
-# Commande pour lancer l'application API avec uvicorn.
-# L'utilisateur 'appuser' a accès à uvicorn car il a été installé globalement.
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Commande pour lancer l'application API Flask avec Gunicorn.
+# 'run_api:app' fait référence à l'objet 'app' dans le fichier 'run_api.py'.
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "run_api:app"]

@@ -127,11 +127,10 @@ jobs:
         cp README.hf.md "${HF_REPO_DIR}/README.md"
 
         # Crée un Dockerfile dans le dépôt du Space qui pointe vers l'image sur Docker Hub
-        # On surcharge le CMD pour s'assurer que l'API est servie à la racine (root_path)
-        # et non sur un sous-chemin comme /app, ce qui résout les erreurs 404.
+        # On surcharge le CMD pour utiliser Gunicorn, le serveur adapté pour Flask.
         cat <<EOF > "${HF_REPO_DIR}/Dockerfile"
         FROM ${DOCKER_IMAGE}
-        CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--root-path", "/"]
+        CMD ["gunicorn", "--bind", "0.0.0.0:8000", "run_api:app"]
         EOF
         
         # Se déplace dans le dossier du dépôt cloné pour les commandes git
