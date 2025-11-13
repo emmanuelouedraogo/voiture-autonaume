@@ -129,7 +129,7 @@ jobs:
     - name: 4. Mettre à jour la configuration et pousser les changements
       env:
         DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/voiture-autonaume-api:latest
-      run: 
+      run: |
         # Définit le chemin du dépôt cloné
         HF_REPO_DIR="${HF_SPACE_REPO##*/}"
         
