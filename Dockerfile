@@ -35,6 +35,11 @@ RUN pip install --no-cache /wheels/*
 COPY emmanuel_segmentation_package/ ./emmanuel_segmentation_package/
 COPY api/run_api.py .
 
+# Installer curl pour pouvoir télécharger les modèles, puis nettoyer le cache apt.
+# L'image python:3.12-slim ne l'inclut pas par défaut.
+RUN apt-get update && apt-get install -y curl --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
+
 # Créer le dossier pour les modèles et télécharger les fichiers depuis les releases GitHub.
 # Cela garantit que les modèles sont inclus dans l'image sans être stockés dans le dépôt Git.
 RUN mkdir -p /app/models && \
