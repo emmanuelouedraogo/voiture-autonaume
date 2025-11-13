@@ -1,26 +1,37 @@
-# Ignorer les fichiers et dossiers liés à Git
-.git
-.gitignore
+# Fichiers et dossiers de cache Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
-# Ignorer les fichiers de configuration spécifiques à l'IDE
+# Répertoires de cache du modèle et des sorties
+/outputs/
+
+# Environnements virtuels
+*env/
+venv/
+.venv/
+env/
+ENV/
+.env
+impenv/
+
+# Fichiers de configuration des éditeurs et IDE
 .idea/
 .vscode/
 
-# Ignorer les environnements virtuels Python
-*.env
-.*.env
-venv/
-voitautoenv/
+# Fichiers de notebooks Jupyter/Colab
+.ipynb_checkpoints
 
-# Ignorer les caches Python
-__pycache__/
-*.pyc
+# Fichiers de build et de distribution Python
+build/
+dist/
+*.egg-info/
 
-# Fichiers de documentation et de test non nécessaires dans l'image finale
-README.md
-Note_technique.md
-run_performance_test.py
-test_images/
-tests/
-outputs/
+# Fichiers texte
+prompts.txt
+
+# Fichiers Git
+.git/
+.gitignore
 .github/
