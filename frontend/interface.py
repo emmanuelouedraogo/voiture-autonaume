@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw, ImageFont
 import io
 import os
 import base64, math
-
+# ... (autres imports)
 # --- Configuration de la page ---
 st.set_page_config(
     page_title="Analyse de Scène Routière",
@@ -17,8 +17,12 @@ st.set_page_config(
 # Lit l'URL de l'API depuis la configuration Streamlit, qui est alimentée par la variable d'environnement
 # définie dans docker-compose.yml. Cela garantit l'utilisation de 'http://api:8000/predict'.
 # La valeur par défaut est pour le développement local sans Docker.
-API_URL = st.config.get_option("client.apiUrl", "http://127.0.0.1:8000/predict")
 
+# Récupère l'URL de l'API depuis les secrets de Streamlit Cloud (variable d'environnement)
+# ou utilise une valeur par défaut pour le développement local.
+API_URL = os.getenv("API_URL", "http://127.0.0.1:8000/predict")
+
+# ... (le reste de votre code)
 
 def call_segmentation_api(image_bytes, filename):
     """Appelle l'API de segmentation avec une image et retourne la réponse."""
