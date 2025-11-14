@@ -150,7 +150,7 @@ jobs:
         # C'est essentiel pour que le modèle soit chargé dans chaque worker via le hook post_fork.
         cat <<EOF > "${HF_REPO_DIR}/Dockerfile"
         FROM ${DOCKER_IMAGE}
-        CMD ["gunicorn", "--config", "gunicorn_config.py", "--bind", "0.0.0.0:8000", "run_api:app"]
+        CMD ["gunicorn", "--config", "gunicorn_config.py", "--bind", "0.0.0.0:8000", "api.run_api:app"]
         EOF
         
         # Se déplace dans le dossier du dépôt cloné pour les commandes git
