@@ -22,3 +22,21 @@ services:
     #   timeout: 10s
     #   retries: 3
     #   start_period: 120s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    container_name: segmentation_frontend
+    ports:
+      - "8501:8501"
+    volumes:
+      # Monte le code source du frontend dans le conteneur.
+      # Toute modification du code local sera immédiatement reflétée.
+      - ./frontend:/app
+    environment:
+      # L'URL que le frontend utilisera pour contacter l'API.
+      # 'http://api:8000' est l'adresse du service 'api' à l'intérieur du réseau Docker.
+      - API_URL=http://api:8000
+    depends_on:
+      - api

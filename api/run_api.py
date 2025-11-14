@@ -16,7 +16,8 @@ import io
 # ou, mieux, que le package est installé en mode éditable (pip install -e .)
 from emmanuel_segmentation_package.pipeline import (
     create_weighted_loss,
-    load_segmentation_model,
+    create_segmentation_image,
+    load_segmentation_model, 
     preprocess_image, predict_segmentation,
     get_class_statistics, MODEL_PATH,
     CONFIG_PATH,

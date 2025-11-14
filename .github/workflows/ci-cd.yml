@@ -134,10 +134,11 @@ jobs:
         EOF
 
         # Crée un Dockerfile dans le dépôt du Space qui pointe vers l'image sur Docker Hub
-        # On surcharge le CMD pour utiliser Gunicorn, le serveur adapté pour Flask.
+        # On surcharge le CMD pour utiliser Gunicorn AVEC le fichier de configuration.
+        # C'est essentiel pour que le modèle soit chargé dans chaque worker via le hook post_fork.
         cat <<EOF > "${HF_REPO_DIR}/Dockerfile"
         FROM ${DOCKER_IMAGE}
-        CMD ["gunicorn", "--bind", "0.0.0.0:8000", "run_api:app"]
+        CMD ["gunicorn", "--config", "gunicorn_config.py", "--bind", "0.0.0.0:8000", "run_api:app"]
         EOF
         
         # Se déplace dans le dossier du dépôt cloné pour les commandes git

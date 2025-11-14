@@ -53,7 +53,7 @@ C'est la méthode recommandée pour lancer l'ensemble du projet.
 
 ### Lancement pour le développement (avec monitoring)
 
-Cette commande lance tous les services, y compris l'API, le frontend et la stack de monitoring (Grafana, Loki). C'est idéal pour le développement et le débogage.
+Cette commande construit les images et lance tous les services (API et Frontend) en arrière-plan. C'est la méthode recommandée pour le développement local.
 
 ```bash
 # Construit les images et lance tous les conteneurs en arrière-plan
