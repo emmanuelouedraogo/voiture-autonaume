@@ -38,20 +38,9 @@ RUN pip install --no-cache /wheels/*
 # Copier le fichier de configuration de Gunicorn
 COPY gunicorn_config.py .
 
-# Installer curl pour pouvoir télécharger les modèles, puis nettoyer le cache apt.
-# L'image python:3.12-slim ne l'inclut pas par défaut.
-RUN apt-get update && apt-get install -y curl --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/*
-
-# Créer le dossier pour les modèles et télécharger les fichiers depuis les releases GitHub.
-# Cela garantit que les modèles sont inclus dans l'image sans être stockés dans le dépôt Git.
-# --retry 3: Tente jusqu'à 3 fois en cas d'échec.
-# --retry-delay 5: Attend 5 secondes entre chaque tentative.
-# --retry-connrefused: Retente également si la connexion est refusée.
-RUN mkdir -p /app/models && \
-    curl --retry 3 --retry-delay 5 --retry-connrefused -fL -A "Mozilla/5.0" -o /app/models/final_optimized_model.keras https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/final_optimized_model.keras && \
-    curl --retry 3 --retry-delay 5 --retry-connrefused -fL -A "Mozilla/5.0" -o /app/models/class_mapping.json https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/class_mapping.json && \
-    curl --retry 3 --retry-delay 5 --retry-connrefused -fL -A "Mozilla/5.0" -o /app/models/class_weights.json https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/class_weights.json
+# Copier les modèles pré-téléchargés depuis le contexte de build.
+# Cette approche est plus robuste que de les télécharger dans le Dockerfile.
+COPY models/ /app/models/
 
 # Définir les variables d'environnement pour que l'API trouve les modèles.
 ENV MODEL_PATH=/app/models/final_optimized_model.keras CONFIG_PATH=/app/models/class_mapping.json CLASS_WEIGHTS_PATH=/app/models/class_weights.json
