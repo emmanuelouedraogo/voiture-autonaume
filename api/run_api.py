@@ -112,10 +112,11 @@ def predict():
         return jsonify({"error": "Une erreur est survenue lors du traitement de l'image", "details": str(e)}), 500
 
 
-if __name__ == '__main__':
-    # Initialiser le modèle avant de démarrer le serveur
-    initialize_model()
+# Initialiser le modèle dès le chargement du module, avant que le serveur ne démarre.
+# C'est la bonne pratique pour Gunicorn.
+initialize_model()
 
+if __name__ == '__main__':
     # Démarrer le serveur Flask
     # host='0.0.0.0' rend l'API accessible depuis d'autres machines sur le réseau
     app.run(host='0.0.0.0', port=8000, debug=False)
