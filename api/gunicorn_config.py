@@ -15,8 +15,9 @@ def post_fork(server, worker):
     """
     server.log.info(f"Worker {worker.pid} : Initialisation du modèle...")
 
-    # Importer l'application Flask et sa fonction d'initialisation
-    from api.run_api import initialize_model
+    # Importer la fonction d'initialisation depuis le module run_api.
+    # Comme run_api.py est à la racine de /app dans le conteneur, l'import est direct.
+    from run_api import initialize_model
 
     # Charger le modèle dans ce worker spécifique
     initialize_model()
