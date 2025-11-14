@@ -1,6 +1,6 @@
 # --- Étape 1: Builder ---
 # Utilise une image Python complète pour construire les dépendances de manière robuste.
-FROM python:3.12-slim as builder
+FROM python:3.12-slim AS builder
 
 WORKDIR /app
 
@@ -49,9 +49,9 @@ RUN apt-get update && apt-get install -y curl --no-install-recommends && \
 # --retry-delay 5: Attend 5 secondes entre chaque tentative.
 # --retry-connrefused: Retente également si la connexion est refusée.
 RUN mkdir -p /app/models && \
-    curl --retry 3 --retry-delay 5 --retry-connrefused -fL -o /app/models/final_optimized_model.keras https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/models/final_optimized_model.keras && \
-    curl --retry 3 --retry-delay 5 --retry-connrefused -fL -o /app/models/class_mapping.json https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/models/class_mapping.json && \
-    curl --retry 3 --retry-delay 5 --retry-connrefused -fL -o /app/models/class_weights.json https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/models/class_weights.json
+    curl --retry 3 --retry-delay 5 --retry-connrefused -fL -o /app/models/final_optimized_model.keras https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/final_optimized_model.keras && \
+    curl --retry 3 --retry-delay 5 --retry-connrefused -fL -o /app/models/class_mapping.json https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/class_mapping.json && \
+    curl --retry 3 --retry-delay 5 --retry-connrefused -fL -o /app/models/class_weights.json https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/class_weights.json
 
 # Définir les variables d'environnement pour que l'API trouve les modèles.
 ENV MODEL_PATH=/app/models/final_optimized_model.keras CONFIG_PATH=/app/models/class_mapping.json CLASS_WEIGHTS_PATH=/app/models/class_weights.json
