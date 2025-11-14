@@ -9,11 +9,15 @@ RUN python -m pip install --upgrade pip
 
 # Copier uniquement le fichier de dépendances pour profiter de la mise en cache de Docker.
 # L'installation ne sera relancée que si pyproject.toml change.
-COPY pyproject.toml ./
+COPY pyproject.toml .
 
+# Copier tout le code source nécessaire pour construire les wheels.
+COPY emmanuel_segmentation_package/ ./emmanuel_segmentation_package/
+COPY api/ ./api/
+ 
 # Installer les dépendances de production dans un répertoire local (wheelhouse).
 # Cela pré-compile les paquets, ce qui accélère l'étape finale.
-# On installe les dépendances du groupe [main] défini dans pyproject.toml.
+# On installe les dépendances du projet.
 RUN pip wheel --no-cache-dir --wheel-dir=/app/wheels -e .
 
 # --- Étape 2: Final ---
@@ -30,10 +34,6 @@ COPY --from=builder /app/wheels /wheels
 
 # Installer les dépendances à partir des wheels. C'est plus rapide et ne nécessite pas de compilation.
 RUN pip install --no-cache /wheels/*
-
-# Copier le code de l'application (le package et le fichier main.py).
-COPY emmanuel_segmentation_package/ ./emmanuel_segmentation_package/
-COPY api/run_api.py .
 
 # Copier le fichier de configuration de Gunicorn
 COPY gunicorn_config.py .
@@ -59,5 +59,5 @@ USER appuser
 
 # Commande pour lancer l'application API Flask avec Gunicorn.
 # On utilise le fichier de configuration pour charger le modèle dans chaque worker.
-# 'run_api:app' fait référence à l'objet 'app' dans le fichier 'run_api.py'.
-CMD ["gunicorn", "--config", "gunicorn_config.py", "--bind", "0.0.0.0:8000", "run_api:app"]
+# 'api.run_api:app' fait référence à l'objet 'app' dans le fichier 'api/run_api.py'.
+CMD ["gunicorn", "--config", "gunicorn_config.py", "api.run_api:app"]
