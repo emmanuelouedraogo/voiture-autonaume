@@ -35,6 +35,9 @@ RUN pip install --no-cache /wheels/*
 COPY emmanuel_segmentation_package/ ./emmanuel_segmentation_package/
 COPY api/run_api.py .
 
+# Copier le fichier de configuration de Gunicorn
+COPY gunicorn_config.py .
+
 # Installer curl pour pouvoir télécharger les modèles, puis nettoyer le cache apt.
 # L'image python:3.12-slim ne l'inclut pas par défaut.
 RUN apt-get update && apt-get install -y curl --no-install-recommends && \
@@ -55,5 +58,6 @@ RUN chown -R appuser:appuser /app
 USER appuser
 
 # Commande pour lancer l'application API Flask avec Gunicorn.
+# On utilise le fichier de configuration pour charger le modèle dans chaque worker.
 # 'run_api:app' fait référence à l'objet 'app' dans le fichier 'run_api.py'.
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "run_api:app"]
+CMD ["gunicorn", "--config", "gunicorn_config.py", "--bind", "0.0.0.0:8000", "run_api:app"]

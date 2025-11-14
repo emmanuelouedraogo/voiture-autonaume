@@ -111,11 +111,9 @@ def predict():
         return jsonify({"error": "Une erreur est survenue lors du traitement de l'image", "details": str(e)}), 500
 
 
-# Initialiser le modèle dès le chargement du module, avant que le serveur ne démarre.
-# C'est la bonne pratique pour Gunicorn.
-initialize_model()
-
 if __name__ == '__main__':
     # Le bloc if __name__ == '__main__' est conservé pour le développement local.
     # Gunicorn n'exécute pas ce bloc.
+    # Pour le dev local, on charge le modèle avant de lancer le serveur.
+    initialize_model()
     app.run(host='0.0.0.0', port=8000, debug=False)
