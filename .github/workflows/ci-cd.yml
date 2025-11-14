@@ -73,13 +73,15 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Download model files before build
+      env:
+        # Le GITHUB_TOKEN est automatiquement fourni par GitHub Actions
+        GH_TOKEN: ${{ github.token }}
       run: |
-        mkdir -p ./models
-        echo "Downloading model files..."
-        curl --retry 3 --retry-delay 5 -fL -A "Mozilla/5.0" -o ./models/final_optimized_model.keras https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/final_optimized_model.keras
-        curl --retry 3 --retry-delay 5 -fL -A "Mozilla/5.0" -o ./models/class_mapping.json https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/class_mapping.json
-        curl --retry 3 --retry-delay 5 -fL -A "Mozilla/5.0" -o ./models/class_weights.json https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/class_weights.json
-        echo "Download complete. Files in ./models:"
+        echo "Downloading release assets using GitHub CLI..."
+        # Utilise la CLI 'gh' pour télécharger les assets de la release v0.1.0
+        # C'est la méthode la plus robuste, surtout pour les dépôts privés.
+        gh release download v0.1.0 --dir ./models --pattern '*'
+        echo "Download complete. Listing files in ./models:"
         ls -lh ./models
 
     - name: Build and push API image
