@@ -17,7 +17,7 @@ def post_fork(server, worker):
 
     # Importer la fonction d'initialisation depuis le module run_api.
     # Comme run_api.py est à la racine de /app dans le conteneur, l'import est direct.
-    from run_api import initialize_model
+    from api.run_api import initialize_model
 
     # Charger le modèle dans ce worker spécifique
     initialize_model()
