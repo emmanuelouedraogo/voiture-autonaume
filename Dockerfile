@@ -45,10 +45,13 @@ RUN apt-get update && apt-get install -y curl --no-install-recommends && \
 
 # Créer le dossier pour les modèles et télécharger les fichiers depuis les releases GitHub.
 # Cela garantit que les modèles sont inclus dans l'image sans être stockés dans le dépôt Git.
+# --retry 3: Tente jusqu'à 3 fois en cas d'échec.
+# --retry-delay 5: Attend 5 secondes entre chaque tentative.
+# --retry-connrefused: Retente également si la connexion est refusée.
 RUN mkdir -p /app/models && \
-    curl -fL -o /app/models/final_optimized_model.keras https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/final_optimized_model.keras && \
-    curl -fL -o /app/models/class_mapping.json https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/class_mapping.json && \
-    curl -fL -o /app/models/class_weights.json https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/class_weights.json
+    curl --retry 3 --retry-delay 5 --retry-connrefused -fL -o /app/models/final_optimized_model.keras https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/final_optimized_model.keras && \
+    curl --retry 3 --retry-delay 5 --retry-connrefused -fL -o /app/models/class_mapping.json https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/class_mapping.json && \
+    curl --retry 3 --retry-delay 5 --retry-connrefused -fL -o /app/models/class_weights.json https://github.com/emmanuelouedraogo/voiture-autonome/releases/download/v0.1.0/class_weights.json
 
 # Définir les variables d'environnement pour que l'API trouve les modèles.
 ENV MODEL_PATH=/app/models/final_optimized_model.keras CONFIG_PATH=/app/models/class_mapping.json CLASS_WEIGHTS_PATH=/app/models/class_weights.json
