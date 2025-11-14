@@ -36,7 +36,7 @@ COPY emmanuel_segmentation_package/ ./emmanuel_segmentation_package/
 COPY api/run_api.py .
 
 # Copier le fichier de configuration de Gunicorn
-COPY gunicorn_config.py .
+COPY api/gunicorn_config.py .
 
 # Installer curl pour pouvoir télécharger les modèles, puis nettoyer le cache apt.
 # L'image python:3.12-slim ne l'inclut pas par défaut.
