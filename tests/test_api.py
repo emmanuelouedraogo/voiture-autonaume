@@ -28,21 +28,23 @@ def test_index_route(client):
     assert "API de segmentation en cours d'exécution" in json_data['status']
 
 
-def test_predict_no_file(client):
+def test_predict_no_file(client, monkeypatch):
     """Teste l'endpoint /predict sans envoyer de fichier."""
+    # Simuler que le modèle est chargé pour passer la première vérification (503)
+    monkeypatch.setattr("api.run_api.model", "mock_model")
+    monkeypatch.setattr("api.run_api.config", {"mock": "config"})
+
     response = client.post('/predict')
     assert response.status_code == 400
     json_data = response.get_json()
     assert "Aucun fichier 'image' n'a été trouvé" in json_data['error']
 
 
-def test_predict_with_mock_model(client, monkeypatch):
-    """Teste l'endpoint /predict avec un modèle et une image simulés (mock)."""
-    # Simuler (mock) la fonction d'initialisation pour ne pas charger le vrai modèle
-    def mock_initialize():
-        pass
-    monkeypatch.setattr("api.run_api.initialize_model", mock_initialize)
-
+def test_predict_model_not_loaded(client):
+    """
+    Teste que l'endpoint /predict renvoie 503 si le modèle n'est pas chargé.
+    C'est le comportement attendu dans un environnement de test propre.
+    """
     # Créer une fausse image pour l'envoi
     fake_image = io.BytesIO()
     Image.new('RGB', (60, 30), color = 'red').save(fake_image, 'PNG')
@@ -51,9 +53,7 @@ def test_predict_with_mock_model(client, monkeypatch):
     # Envoyer la requête POST avec le fichier image
     response = client.post('/predict', data={'image': (fake_image, 'test.png')})
 
-    # Le test échouera car le modèle n'est pas chargé (c'est normal sans un mock plus complexe).
-    # L'objectif ici est de valider que la structure du test est correcte.
-    # Une erreur 500 est attendue car `model` est `None`.
-    assert response.status_code == 500
+    # Le comportement correct est maintenant de renvoyer 503 si le modèle est None.
+    assert response.status_code == 503
     json_data = response.get_json()
-    assert "Une erreur est survenue" in json_data['error']
+    assert "Le service n'est pas prêt" in json_data['error']
