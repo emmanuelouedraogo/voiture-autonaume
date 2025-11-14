@@ -27,11 +27,11 @@ Ce projet fournit une solution complète pour la segmentation sémantique d'imag
 
 ## 📂 Structure du Projet
 
-```
+```text
 voiture-autonome/
 ├── .gitignore          # Fichiers à ignorer par Git
 ├── api/
-│   ├── main.py         # Code de l'API FastAPI
+│   ├── run_api.py      # Code de l'API Flask
 │   └── segmentation.py # Logique de l'algorithme de segmentation
 ├── app/
 │   └── app.py          # Code de l'application Streamlit
@@ -92,7 +92,7 @@ Vous devez lancer l'API et l'interface Streamlit dans **deux terminaux distincts
 **Terminal 1 : Lancez l'API FastAPI**
 
 ```bash
-uvicorn api.main:app --reload
+python api/run_api.py
 ```
 
 > L'API sera accessible à l'adresse `http://127.0.0.1:8000`.
