@@ -16,7 +16,6 @@ import io
 # ou, mieux, que le package est installé en mode éditable (pip install -e .)
 from emmanuel_segmentation_package.pipeline import (
     create_weighted_loss,
-    create_segmentation_image,
     load_segmentation_model,
     preprocess_image, predict_segmentation,
     get_class_statistics, MODEL_PATH,
@@ -117,6 +116,6 @@ def predict():
 initialize_model()
 
 if __name__ == '__main__':
-    # Démarrer le serveur Flask
-    # host='0.0.0.0' rend l'API accessible depuis d'autres machines sur le réseau
+    # Le bloc if __name__ == '__main__' est conservé pour le développement local.
+    # Gunicorn n'exécute pas ce bloc.
     app.run(host='0.0.0.0', port=8000, debug=False)
