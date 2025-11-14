@@ -39,20 +39,20 @@ def initialize_model():
     """
     global model, config
 
-    print("Initialisation du modèle pour l'API...")
+    # Utiliser le logger de Flask est une meilleure pratique que print()
+    app.logger.info("Initialisation du modèle pour l'API...")
 
     # Charger le modèle et la configuration.
     # La fonction gère maintenant le téléchargement si les fichiers sont absents.
     try:
-        # Les chemins sont maintenant lus depuis les variables d'environnement dans le module pipeline
         model, config = load_segmentation_model(
             MODEL_PATH, CONFIG_PATH, CLASS_WEIGHTS_PATH
         )
-        print("Modèle et configuration chargés avec succès. L'API est prête.")
+        app.logger.info("Modèle et configuration chargés avec succès. L'API est prête.")
     except Exception as e:
-        print(f"ERREUR: Échec du chargement du modèle : {e}", file=sys.stderr)
-        traceback.print_exc()
-        sys.exit(1)
+        app.logger.error(f"ERREUR: Échec du chargement du modèle : {e}", exc_info=True)
+        # Lever une exception permet à Gunicorn de gérer proprement l'échec du worker.
+        raise RuntimeError(f"Impossible de charger le modèle : {e}")
 
 
 @app.route('/', methods=['GET'])
@@ -66,6 +66,10 @@ def predict():
     """
     Endpoint pour recevoir une image et retourner la prédiction de segmentation.
     """
+    # Vérifier si le modèle a été initialisé
+    if model is None or config is None:
+        return jsonify({"error": "Le service n'est pas prêt, le modèle n'est pas chargé."}), 503
+
     # Vérifier si un fichier image est présent dans la requête
     if 'image' not in request.files:
         return jsonify({"error": "Aucun fichier 'image' n'a été trouvé dans la requête"}), 400
@@ -108,7 +112,7 @@ def predict():
         return jsonify(response_data)
 
     except Exception as e:
-        traceback.print_exc()
+        app.logger.error(f"Erreur lors du traitement de la requête /predict : {e}", exc_info=True)
         return jsonify({"error": "Une erreur est survenue lors du traitement de l'image", "details": str(e)}), 500
 
 
